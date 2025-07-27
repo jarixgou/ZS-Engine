@@ -174,11 +174,12 @@ void ZS::Hierarchy()
 			{
 				if (ImGui::MenuItem("Rectangular"))
 				{
-					GameObject gridGO;
-					gridGO.name = "Grid";
-					gridGO.tag = nullptr;
-					gridGO.layer = nullptr;
-					gridGO.transform = { };
+					GameObject* gridGO = new GameObject;
+					gridGO->parent = nullptr;
+					gridGO->name = "Grid";
+					gridGO->tag = nullptr;
+					gridGO->layer = nullptr;
+					gridGO->transform = { };
 
 					GameObject::Component gridComponent;
 					gridComponent.type = GameObject::Component::ComponentType::COMPONENT_TYPE_GRID;
@@ -188,20 +189,21 @@ void ZS::Hierarchy()
 
 					gridComponent.data = gridData;
 
-					gridGO.componentList.push_back(gridComponent);
+					gridGO->componentList.push_back(gridComponent);
 
-					GameObject tilemapGO;
-					tilemapGO.name = "Tilemap";
-					tilemapGO.tag = nullptr;
-					tilemapGO.layer = nullptr;
-					tilemapGO.transform = { };
+					GameObject* tilemapGO = new GameObject;
+					tilemapGO->parent = gridGO;
+					tilemapGO->name = "Tilemap";
+					tilemapGO->tag = nullptr;
+					tilemapGO->layer = nullptr;
+					tilemapGO->transform = { };
 
 					GameObject::Component tilemapComponent;
 					tilemapComponent.type = GameObject::Component::ComponentType::COMPONENT_TYPE_TILEMAP;
 					tilemapComponent.data = new GameObject::Component::Tilemap();
-					tilemapGO.componentList.push_back(tilemapComponent);
+					tilemapGO->componentList.push_back(tilemapComponent);
 
-					gridGO.child.push_back(tilemapGO);
+					gridGO->child.push_back(tilemapGO);
 
 					this->gameObjectList.push_back(gridGO);
 
@@ -251,9 +253,9 @@ void ZS::Hierarchy()
 	static int selected = -1;
 
 	int currentId = 0;
-	for (GameObject& gameObject : this->gameObjectList)
+	for (GameObject*& gameObject : this->gameObjectList)
 	{
-		DrawGameObjectNode(gameObject, this->selectedGO);
+		DrawGameObjectNode(*gameObject, this->selectedGO);
 	}
 
 	ImGui::End();
@@ -433,9 +435,9 @@ void ZS::Scene()
 
 	this->sceneRender->clear(sf::Color::Transparent);
 
-	for (GameObject& gameObject : this->gameObjectList)
+	for (GameObject*& gameObject : this->gameObjectList)
 	{
-		DrawGameObjectScene(gameObject, this->sceneRender);
+		DrawGameObjectScene(*gameObject, this->sceneRender);
 	}
 
 	this->sceneRender->display();
@@ -510,9 +512,9 @@ void DrawGameObjectNode(ZS::GameObject& _gO, ZS::GameObject*& _selectedGO)
 
 	if (open && hasChildren)
 	{
-		for (ZS::GameObject& child : _gO.child)
+		for (ZS::GameObject*& child : _gO.child)
 		{
-			DrawGameObjectNode(child, _selectedGO);
+			DrawGameObjectNode(*child, _selectedGO);
 		}
 		ImGui::TreePop();
 	}
@@ -540,9 +542,9 @@ void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>
 
 	if (hasChildren)
 	{
-		for (ZS::GameObject& child : _gO.child)
+		for (ZS::GameObject*& child : _gO.child)
 		{
-			DrawGameObjectScene(child, _render);
+			DrawGameObjectScene(*child, _render);
 		}
 	}
 }

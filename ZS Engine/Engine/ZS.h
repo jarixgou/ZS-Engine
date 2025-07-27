@@ -85,7 +85,8 @@ public:
 			void* data;
 		}Component;
 
-		std::vector<GameObject> child;
+		GameObject* parent;
+		std::vector<GameObject*> child;
 
 		std::string name;
 		std::string* tag;
@@ -109,7 +110,7 @@ public:
 	std::vector<Layer> layerList;
 
 	GameObject* selectedGO;
-	std::vector<GameObject> gameObjectList;
+	std::vector<GameObject*> gameObjectList;
 
 	sf::Texture cellTexture;
 private:
