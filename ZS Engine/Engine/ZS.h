@@ -1,6 +1,7 @@
 #pragma once
 #include "../Common.h"
 #include <string>
+#include <functional>
 
 #define ZS_VERSION "0.0.1"
 
@@ -13,12 +14,12 @@ public:
 		size_t id;
 	}Layer;
 
-	typedef class ConverterImGui
+	typedef class ImGuiUtility
 	{
 	public:
 		static sf::Vector2f ConvertImVec2toVector2f(const ImVec2& _vec);
 		static ImVec2 ConvertVector2ftoImVec2(const sf::Vector2f& _vec);
-	}ConverterImGui;
+	}ImGuiUtility;
 
 	typedef class GameObject
 	{
@@ -52,11 +53,15 @@ public:
 				{
 				public:
 					size_t id;
+
 					size_t line;
 					size_t column;
+
 					bool mouseInside;
 					bool selected;
+
 					sf::RectangleShape rect;
+					sf::Sprite spr;
 				}Cell;
 
 				sf::Vector2i gridSize;
@@ -64,20 +69,19 @@ public:
 				sf::Vector2f cellGap;
 
 				std::vector<std::vector<Cell>> cellList;
+
+				void CellOverriding(sf::Vector2f _worldPos);
+				void SelectCell(Cell** _selectedCell);
 			}Grid;
 
 			typedef class Tilemap
 			{
 			public:
-				typedef class Sprite : public Grid::Cell
-				{
-				public:
-					sf::Sprite sprite;
-				}sprite;
+				void PaintTiles(Grid::Cell* _selectedCell, sf::Texture& _tilesetTexture);
 
 				sf::Color color;
 
-				std::vector<std::vector<Sprite>> spriteList;
+				Grid grid;
 
 			}Tilemap;
 
@@ -97,6 +101,15 @@ public:
 
 	}GameObject;
 
+	typedef class Tileset
+	{
+	public:
+		GameObject::Component::Grid grid;
+
+		sf::Texture texture;
+		sf::Sprite sprite;
+	}Tileset;
+
 	void Load();
 	void PollEvent(sf::RenderWindow& _renderWindow, const sf::Event& _event);
 	void Update(sf::RenderWindow& _renderWindow, float _dt);
@@ -106,6 +119,10 @@ public:
 	sf::View sceneView;
 	std::unique_ptr<sf::RenderTexture> sceneRender;
 
+	sf::View tilesetView;
+	std::unique_ptr<sf::RenderTexture> tilesetRender;
+	Tileset tileset;
+
 	std::vector<std::string> tagList;
 	std::vector<Layer> layerList;
 
@@ -113,9 +130,22 @@ public:
 	std::vector<GameObject*> gameObjectList;
 
 	sf::Texture cellTexture;
+
+	GameObject* selectedTileMapGO;
+	GameObject::Component::Grid::Cell* selectedCell;
+	std::vector<GameObject*> tilemapList;
+
 private:
-	void Hierarchy();
-	void Inspector();
-	void Scene();
-	void Tileset();
+	void HierarchyInterface();
+	void InspectorInterface();
+	void SceneInterface();
+	void TilesetInterface();
+
+	GameObject::Component* GetComponent(GameObject* const _gO, GameObject::Component::ComponentType _type);
+
+	void UpdateGrid(GameObject& _gO, sf::Vector2f _worldPos);
+
+	void ResizeGrid(GameObject& _gO, sf::Vector2i& _gridSize, sf::Vector2i& _cellSize, sf::Vector2f& _cellGap);
+	std::vector<std::vector<GameObject::Component::Grid::Cell>> SaveGridID(GameObject::Component::Grid& _grid);
+	void RestoreGridID(GameObject::Component::Grid& _grid, const std::vector<std::vector<GameObject::Component::Grid::Cell>>& _savedGridID);
 }ZS;

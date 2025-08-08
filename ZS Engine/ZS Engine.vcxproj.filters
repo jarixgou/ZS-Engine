@@ -464,6 +464,9 @@
     <ClInclude Include="Engine\ZS.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\GameObject\GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\include\SFML\Audio\SoundFileFactory.inl">
