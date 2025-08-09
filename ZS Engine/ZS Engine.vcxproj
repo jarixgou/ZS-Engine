@@ -175,9 +175,12 @@
     <ClCompile Include="Dependencies\include\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Dependencies\include\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\include\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Engine\GameObject\Component\Component.cpp" />
+    <ClCompile Include="Engine\GameObject\Component\Grid\Grid.cpp" />
+    <ClCompile Include="Engine\GameObject\Component\Tilemap\Tilemap.cpp" />
+    <ClCompile Include="Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Engine\ZS.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MapEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
@@ -298,8 +301,12 @@
     <ClInclude Include="Dependencies\include\SFML\Window\Window.hpp" />
     <ClInclude Include="Dependencies\include\SFML\Window\WindowHandle.hpp" />
     <ClInclude Include="Dependencies\include\SFML\Window\WindowStyle.hpp" />
+    <ClInclude Include="Engine\GameObject\Component\Component.h" />
+    <ClInclude Include="Engine\GameObject\Component\Grid\Grid.h" />
+    <ClInclude Include="Engine\GameObject\Component\IComponentData.h" />
+    <ClInclude Include="Engine\GameObject\Component\Tilemap\Tilemap.h" />
     <ClInclude Include="Engine\GameObject\GameObject.h" />
-    <ClInclude Include="MapEditor.h" />
+    <ClInclude Include="Engine\Layer\Layer.h" />
     <ClInclude Include="Engine\ZS.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,9 +1,5 @@
 #include "Common.h"
-#include "MapEditor.h"
 #include "Engine/ZS.h"
-
-MapEditor mapEditor;
-ZS zsEngine;
 
 // Prototypes
 void Init();
@@ -36,8 +32,6 @@ int main()
 		{
 			ImGui::SFML::ProcessEvent(event);
 
-			mapEditor.PollEvent(renderWindow, event);
-
 			if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			{
 				renderWindow.close();
@@ -55,13 +49,13 @@ int main()
 void Init()
 {
 	//mapEditor.Load();
-	zsEngine.Load();
+	ZS::Load();
 }
 
 void Update(sf::RenderWindow& _renderWindow, float _dt)
 {
 	//mapEditor.Update(_dt, _renderWindow);
-	zsEngine.Update(_renderWindow, _dt);
+	ZS::Update(_renderWindow, _dt);
 }
 
 void Display(sf::RenderWindow& _window)
@@ -69,7 +63,7 @@ void Display(sf::RenderWindow& _window)
 	_window.clear(sf::Color::Black);
 
 	//mapEditor.Draw(_window);
-	zsEngine.Draw(_window);
+	ZS::Draw(_window);
 
 	ImGui::SFML::Render(_window);
 

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <time.h>
+#include <memory>
 
 #include "SFML/Window.hpp"
 #include "SFML/Audio.hpp"

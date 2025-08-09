@@ -78,9 +78,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MapEditor.cpp">
-      <Filter>Source Files\Engine\MapEditor</Filter>
-    </ClCompile>
     <ClCompile Include="Dependencies\include\ImGui\imgui.cpp">
       <Filter>Resource Files\include\ImGui</Filter>
     </ClCompile>
@@ -100,6 +97,18 @@
       <Filter>Resource Files\include\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Engine\ZS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\GameObject\Component\Grid\Grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\GameObject\Component\Component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\GameObject\GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\GameObject\Component\Tilemap\Tilemap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -431,9 +440,6 @@
     <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MapEditor.h">
-      <Filter>Header Files\Engine\MapEditor</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\include\ImGui\imconfig.h">
       <Filter>Resource Files\include\ImGui</Filter>
     </ClInclude>
@@ -465,6 +471,21 @@
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Engine\GameObject\GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Layer\Layer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GameObject\Component\Component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GameObject\Component\Grid\Grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GameObject\Component\IComponentData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GameObject\Component\Tilemap\Tilemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

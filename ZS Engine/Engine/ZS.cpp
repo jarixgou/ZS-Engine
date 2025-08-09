@@ -1,11 +1,7 @@
 ﻿#include "ZS.h"
 
-std::string GetComponentName(ZS::GameObject::Component::ComponentType type);
 void DrawGameObjectNode(ZS::GameObject& _gO, ZS::GameObject*& _selectedGO);
 void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>& _render);
-
-void CreateGrid(ZS::GameObject::Component::Grid& _grid, sf::Texture& _cellTexture, bool _giveID);
-void DestroyGrid(ZS::GameObject::Component::Grid& _grid);
 
 sf::Vector2f ZS::ImGuiUtility::ConvertImVec2toVector2f(const ImVec2& _vec)
 {
@@ -17,117 +13,43 @@ ImVec2 ZS::ImGuiUtility::ConvertVector2ftoImVec2(const sf::Vector2f& _vec)
 	return { _vec.x, _vec.y };
 }
 
-void ZS::GameObject::Component::Grid::CellOverriding(sf::Vector2f _worldPos)
-{
-	for (auto& cellList : this->cellList)
-	{
-		for (auto& cell : cellList)
-		{
-			if (cell.rect.getGlobalBounds().contains(_worldPos))
-			{
-				cell.mouseInside = true;
-				cell.rect.setFillColor(sf::Color::Red);
-			}
-			else
-			{
-				cell.mouseInside = false;
-				cell.rect.setFillColor(sf::Color::White);
-			}
-
-			if (cell.selected)
-			{
-				cell.rect.setFillColor(sf::Color::Green);
-			}
-		}
-	}
-}
-
-void ZS::GameObject::Component::Grid::SelectCell(Cell** _selectedCell)
-{
-	for (auto& cellList : this->cellList)
-	{
-		for (auto& cell : cellList)
-		{
-			if (cell.mouseInside && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-			{
-				cell.selected = true;
-
-				if (*_selectedCell)
-				{
-					if ((*_selectedCell)->selected)
-					{
-						(*_selectedCell)->selected = false;
-					}
-				}
-
-				*_selectedCell = &cell;
-			}
-		}
-	}
-}
-
-void ZS::GameObject::Component::Tilemap::PaintTiles(Grid::Cell* _selectedCell, sf::Texture& _tilesetTexture)
-{
-	for (auto& cellList : this->grid.cellList)
-	{
-		for (auto& cell : cellList)
-		{
-			if (cell.mouseInside && sf::Mouse::isButtonPressed(sf::Mouse::Left) && _selectedCell)
-			{
-				cell.spr.setTexture(_tilesetTexture);
-
-				sf::IntRect textureRect = sf::IntRect(_selectedCell->column * this->grid.cellSize.x, _selectedCell->line * this->grid.cellSize.y,
-					this->grid.cellSize.x, this->grid.cellSize.y);
-
-				cell.spr.setTextureRect(textureRect);
-				cell.spr.setPosition(
-					cell.column * (this->grid.cellSize.x + this->grid.cellGap.x),
-					cell.line * (this->grid.cellSize.y + this->grid.cellGap.y)
-				);
-
-				cell.id = _selectedCell->id;
-			}
-		}
-	}
-}
-
 void ZS::Load()
 {
-	this->cellTexture.loadFromFile("Assets/Map editor/Sprites/cell.png");
+	cellTexture.loadFromFile("Assets/Map editor/Sprites/cell.png");
 
-	this->sceneRender = std::make_unique<sf::RenderTexture>();
-	this->sceneRender->create(SCREEN_WIDTH, SCREEN_HEIGHT);
-	this->sceneView.setCenter(0, 0);
+	sceneRender = std::make_unique<sf::RenderTexture>();
+	sceneRender->create(SCREEN_WIDTH, SCREEN_HEIGHT);
+	sceneView.setCenter(0, 0);
 
-	this->tilesetRender = std::make_unique<sf::RenderTexture>();
-	this->tilesetRender->create(SCREEN_WIDTH, SCREEN_HEIGHT);
-	this->tilesetView.setCenter(0, 0);
+	tilesetRender = std::make_unique<sf::RenderTexture>();
+	tilesetRender->create(SCREEN_WIDTH, SCREEN_HEIGHT);
+	tilesetView.setCenter(0, 0);
 
 
-	this->tileset.texture.loadFromFile("Assets/Sprites/Tilesets.png");
-	this->tileset.sprite.setTexture(this->tileset.texture);
+	tileset.texture.loadFromFile("Assets/Sprites/Tilesets.png");
+	tileset.sprite.setTexture(tileset.texture);
 
-	this->tileset.grid.cellSize = { 32, 32 };
-	sf::Vector2u textureSize = this->tileset.texture.getSize();
-	this->tileset.grid.gridSize = { static_cast<int>(textureSize.x / this->tileset.grid.cellSize.x), static_cast<int>(textureSize.y / this->tileset.grid.cellSize.y) };
+	tileset.grid.cellSize = { 32, 32 };
+	sf::Vector2u textureSize = tileset.texture.getSize();
+	tileset.grid.gridSize = { static_cast<int>(textureSize.x / tileset.grid.cellSize.x), static_cast<int>(textureSize.y / tileset.grid.cellSize.y) };
 
-	CreateGrid(this->tileset.grid, this->cellTexture, true);
+	tileset.grid.CreateGrid(cellTexture, true);
 
 	/* --- Default tag --- */
 	std::string playerTag = "Player";
-	this->tagList.push_back(playerTag);
+	tagList.push_back(playerTag);
 
 	std::string enemyTag = "Enemy";
-	this->tagList.push_back(enemyTag);
+	tagList.push_back(enemyTag);
 
 	std::string npcTag = "NPC";
-	this->tagList.push_back(npcTag);
+	tagList.push_back(npcTag);
 
 	/* --- Default layer --- */
 	Layer defaultLayer;
 	defaultLayer.name = "Default";
 	defaultLayer.id = 0;
-	this->layerList.push_back(defaultLayer);
+	layerList.push_back(defaultLayer);
 }
 
 void ZS::PollEvent(sf::RenderWindow& _renderWindow, const sf::Event& _event)
@@ -138,14 +60,17 @@ void ZS::PollEvent(sf::RenderWindow& _renderWindow, const sf::Event& _event)
 void ZS::Update(sf::RenderWindow& _renderWindow, float _dt)
 {
 	/* --- Paint tiles --- */
-	if (this->selectedTileMapGO)
+	if (selectedTileMapGO)
 	{
-		GameObject::Component* tilemapComponent = GetComponent(this->selectedTileMapGO, GameObject::Component::COMPONENT_TYPE_TILEMAP);
+		Component* tilemapComponent = selectedTileMapGO->GetComponent(Component::COMPONENT_TYPE_TILEMAP);
 
-		if (tilemapComponent && this->selectedCell)
+		if (tilemapComponent && selectedCell)
 		{
-			GameObject::Component::Tilemap* tilemapData = static_cast<GameObject::Component::Tilemap*>(tilemapComponent->data);
-			tilemapData->PaintTiles(this->selectedCell, this->tileset.texture);
+			Tilemap* tilemapData = dynamic_cast<Tilemap*>(tilemapComponent->data.get());
+			if (tilemapData)
+			{
+				tilemapData->PaintTiles(selectedCell, tileset.texture);
+			}
 		}
 	}
 
@@ -282,14 +207,13 @@ void ZS::HierarchyInterface()
 					gridGO->layer = nullptr;
 					gridGO->transform = { };
 
-					GameObject::Component gridComponent;
-					gridComponent.type = GameObject::Component::ComponentType::COMPONENT_TYPE_GRID;
+					Component* gridComponent = new Component;
+					gridComponent->type = Component::ComponentType::COMPONENT_TYPE_GRID;
 
-					GameObject::Component::Grid* gridData = new GameObject::Component::Grid;
-					CreateGrid(*gridData, this->cellTexture, false);
+					std::unique_ptr<Grid> gridData = std::make_unique<Grid>();
+					gridData->CreateGrid(cellTexture, false);
 
-					gridComponent.data = gridData;
-
+					gridComponent->data = std::move(gridData);
 					gridGO->componentList.push_back(gridComponent);
 
 					GameObject* tilemapGO = new GameObject;
@@ -299,20 +223,20 @@ void ZS::HierarchyInterface()
 					tilemapGO->layer = nullptr;
 					tilemapGO->transform = { };
 
-					GameObject::Component tilemapComponent;
-					tilemapComponent.type = GameObject::Component::ComponentType::COMPONENT_TYPE_TILEMAP;
-					GameObject::Component::Tilemap* tilemapData = new GameObject::Component::Tilemap;
-					CreateGrid(tilemapData->grid, this->cellTexture, false);
+					Component* tilemapComponent = new Component;
+					tilemapComponent->type = Component::ComponentType::COMPONENT_TYPE_TILEMAP;
+					std::unique_ptr<Tilemap> tilemapData = std::make_unique<Tilemap>();
+					tilemapData->grid.CreateGrid(cellTexture, false);
 
-					tilemapComponent.data = tilemapData;
+					tilemapComponent->data = std::move(tilemapData);
 
 					tilemapGO->componentList.push_back(tilemapComponent);
 
-					this->tilemapList.push_back(tilemapGO);
+					tilemapList.push_back(tilemapGO);
 
 					gridGO->child.push_back(tilemapGO);
 
-					this->gameObjectList.push_back(gridGO);
+					gameObjectList.push_back(gridGO);
 				}
 
 				ImGui::EndMenu();
@@ -356,9 +280,9 @@ void ZS::HierarchyInterface()
 
 	static int selected = -1;
 
-	for (GameObject*& gameObject : this->gameObjectList)
+	for (GameObject*& gameObject : gameObjectList)
 	{
-		DrawGameObjectNode(*gameObject, this->selectedGO);
+		DrawGameObjectNode(*gameObject, selectedGO);
 	}
 
 	ImGui::End();
@@ -368,7 +292,7 @@ void ZS::InspectorInterface()
 {
 	ImGui::Begin("Inspector");
 
-	if (this->selectedGO)
+	if (selectedGO)
 	{
 		ImGui::Text("Name : ");
 		ImGui::SameLine();
@@ -378,7 +302,7 @@ void ZS::InspectorInterface()
 
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer)))
 		{
-			this->selectedGO->name = std::string(buffer);
+			selectedGO->name = std::string(buffer);
 		}
 
 		if (ImGui::CollapsingHeader("Transform"))
@@ -389,12 +313,12 @@ void ZS::InspectorInterface()
 			ImGui::Text("X");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100);
-			ImGui::DragFloat("##PositionX", &this->selectedGO->transform.pos.x, 0.5f, -INFINITY, INFINITY);
+			ImGui::DragFloat("##PositionX", &selectedGO->transform.pos.x, 0.5f, -INFINITY, INFINITY);
 			ImGui::SameLine();
 			ImGui::Text("Y");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100);
-			ImGui::DragFloat("##PositionY", &this->selectedGO->transform.pos.y, 0.5f, -INFINITY, INFINITY);
+			ImGui::DragFloat("##PositionY", &selectedGO->transform.pos.y, 0.5f, -INFINITY, INFINITY);
 
 			float rot = selectedGO->transform.rotation;
 			ImGui::Text("Rotation : ");
@@ -407,93 +331,96 @@ void ZS::InspectorInterface()
 			ImGui::Text("X");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100);
-			ImGui::DragFloat("##ScaleX", &this->selectedGO->transform.scale.x, 0.01f, 0.01f, 10.0f);
+			ImGui::DragFloat("##ScaleX", &selectedGO->transform.scale.x, 0.01f, 0.01f, 10.0f);
 			ImGui::SameLine();
 			ImGui::Text("Y");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100);
-			ImGui::DragFloat("##ScaleY", &this->selectedGO->transform.scale.y, 0.01f, 0.01f, 10.0f);
+			ImGui::DragFloat("##ScaleY", &selectedGO->transform.scale.y, 0.01f, 0.01f, 10.0f);
 		}
 
-		for (GameObject::Component& component : this->selectedGO->componentList)
+		for (Component* component : selectedGO->componentList)
 		{
-			std::string componentName = GetComponentName(component.type);
+			std::string componentName = component->GetComponentName();
 
 			if (ImGui::CollapsingHeader(componentName.c_str()))
 			{
-				if (component.type == GameObject::Component::COMPONENT_TYPE_GRID)
+				if (component->type == Component::COMPONENT_TYPE_GRID)
 				{
-					GameObject::Component::Grid* grid = static_cast<GameObject::Component::Grid*>(component.data);
+					Grid* grid = dynamic_cast<Grid*>(component->data.get());
+					if (grid)
+					{
+						/* --- Gride size --- */
+						ImGui::Text("Grid Size : ");
+						ImGui::SameLine();
+						ImGui::Text("X");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(100);
 
-					/* --- Gride size --- */
-					ImGui::Text("Grid Size : ");
-					ImGui::SameLine();
-					ImGui::Text("X");
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100);
+						static int prevGridSizeX = -1;
+						ImGui::DragInt("##GridSizeX", &grid->gridSize.x, 1, 0, INT_MAX);
+						if (ImGui::IsItemDeactivatedAfterEdit() && prevGridSizeX != grid->gridSize.x)
+						{
+							selectedGO->ResizeGrid(*grid, cellTexture, tileset.texture);
 
-					static int prevGridSizeX = -1;
-					ImGui::DragInt("##GridSizeX", &grid->gridSize.x, 1, 0, INT_MAX);
-					if (ImGui::IsItemDeactivatedAfterEdit()) {
-						if (prevGridSizeX != grid->gridSize.x) {
-							ResizeGrid(*this->selectedGO, grid->gridSize, grid->cellSize, grid->cellGap);
 							prevGridSizeX = grid->gridSize.x;
 						}
-					}
 
-					ImGui::SameLine();
-					ImGui::Text("Y");
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100);
-								
-					static int prevGridSizeY = -1;
-					ImGui::DragInt("##GridSizeY", &grid->gridSize.y, 1, 0, INT_MAX);
-					if (ImGui::IsItemDeactivatedAfterEdit() && grid->gridSize.y != prevGridSizeY) {
-					    ResizeGrid(*this->selectedGO, grid->gridSize, grid->cellSize, grid->cellGap);
-					}
+						ImGui::SameLine();
+						ImGui::Text("Y");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(100);
 
-					/* --- Cell size --- */
-					ImGui::Text("Cell Size : ");
-					ImGui::SameLine();
-					ImGui::Text("X");
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100);
-					if (ImGui::DragInt("##CellSizeX", &grid->cellSize.x, 1, INT_MAX))
-					{
-						ResizeGrid(*this->selectedGO, grid->gridSize, grid->cellSize, grid->cellGap);
-					}
-					ImGui::SameLine();
-					ImGui::Text("Y");
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100);
-					if (ImGui::DragInt("##CellSizeY", &grid->cellSize.y, 1, 0, INT_MAX))
-					{
-						ResizeGrid(*this->selectedGO, grid->gridSize, grid->cellSize, grid->cellGap);
-					}
+						static int prevGridSizeY = -1;
+						ImGui::DragInt("##GridSizeY", &grid->gridSize.y, 1, 0, INT_MAX);
+						if (ImGui::IsItemDeactivatedAfterEdit() && grid->gridSize.y != prevGridSizeY)
+						{
+							selectedGO->ResizeGrid(*grid, cellTexture, tileset.texture);
+						}
 
-					/* --- Cell gap --- */
-					ImGui::Text("Cell Gap : ");
-					ImGui::SameLine();
-					ImGui::Text("X");
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100);
-					if (ImGui::DragFloat("##CellGapX", &grid->cellGap.x, 0.1f, 0.0f, INFINITY))
-					{
-						ResizeGrid(*this->selectedGO, grid->gridSize, grid->cellSize, grid->cellGap);
-					}
-					ImGui::SameLine();
-					ImGui::Text("Y");
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100);
-					if (ImGui::DragFloat("##CellGapY", &grid->cellGap.y, 0.1f, 0.0f, INFINITY))
-					{
-						ResizeGrid(*this->selectedGO, grid->gridSize, grid->cellSize, grid->cellGap);
+						/* --- Cell size --- */
+						ImGui::Text("Cell Size : ");
+						ImGui::SameLine();
+						ImGui::Text("X");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(100);
+						if (ImGui::DragInt("##CellSizeX", &grid->cellSize.x, 1, INT_MAX))
+						{
+							selectedGO->ResizeGrid(*grid, cellTexture, tileset.texture);
+						}
+						ImGui::SameLine();
+						ImGui::Text("Y");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(100);
+						if (ImGui::DragInt("##CellSizeY", &grid->cellSize.y, 1, 0, INT_MAX))
+						{
+							selectedGO->ResizeGrid(*grid, cellTexture, tileset.texture);
+						}
+
+						/* --- Cell gap --- */
+						ImGui::Text("Cell Gap : ");
+						ImGui::SameLine();
+						ImGui::Text("X");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(100);
+						if (ImGui::DragFloat("##CellGapX", &grid->cellGap.x, 0.1f, 0.0f, INFINITY))
+						{
+							selectedGO->ResizeGrid(*grid, cellTexture, tileset.texture);
+						}
+						ImGui::SameLine();
+						ImGui::Text("Y");
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(100);
+						if (ImGui::DragFloat("##CellGapY", &grid->cellGap.y, 0.1f, 0.0f, INFINITY))
+						{
+							selectedGO->ResizeGrid(*grid, cellTexture, tileset.texture);
+						}
 					}
 				}
 
-				if (component.type == GameObject::Component::COMPONENT_TYPE_TILEMAP)
+				if (component->type == Component::COMPONENT_TYPE_TILEMAP)
 				{
-					GameObject::Component::Tilemap* tilemap = static_cast<GameObject::Component::Tilemap*>(component.data);
+					Tilemap* tilemap = dynamic_cast<Tilemap*>(component->data.get());
 
 					/* --- Sprite color --- */
 					float color[4] = { tilemap->color.r / 255.f, tilemap->color.g / 255.f, tilemap->color.b / 255.f, tilemap->color.a / 255.f };
@@ -529,7 +456,7 @@ void ZS::SceneInterface()
 	ImGui::Begin("Scene");
 
 	ImVec2 avail = ImGui::GetContentRegionAvail();
-	sf::Vector2f textureSize = static_cast<sf::Vector2f>(this->sceneRender->getSize());
+	sf::Vector2f textureSize = static_cast<sf::Vector2f>(sceneRender->getSize());
 	sf::Vector2f screenSize = ImGuiUtility::ConvertImVec2toVector2f(avail);
 
 	sf::Vector2f mousePos = ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetMousePos());
@@ -538,26 +465,26 @@ void ZS::SceneInterface()
 	{
 		if (textureSize != screenSize)
 		{
-			this->sceneRender->create(static_cast<unsigned int>(screenSize.x),
+			sceneRender->create(static_cast<unsigned int>(screenSize.x),
 				static_cast<unsigned int>(screenSize.y));
-			this->sceneView.setSize(screenSize);
+			sceneView.setSize(screenSize);
 			textureSize = screenSize;
 		}
 	}
 
-	this->sceneRender->setView(this->sceneView);
+	sceneRender->setView(sceneView);
 
-	this->sceneRender->clear(sf::Color::Transparent);
+	sceneRender->clear(sf::Color::Transparent);
 
-	for (GameObject*& gameObject : this->gameObjectList)
+	for (GameObject*& gameObject : gameObjectList)
 	{
-		DrawGameObjectScene(*gameObject, this->sceneRender);
+		DrawGameObjectScene(*gameObject, sceneRender);
 	}
 
-	this->sceneRender->display();
+	sceneRender->display();
 
 	ImGui::Image(
-		reinterpret_cast<void*>(static_cast<intptr_t>(this->sceneRender->getTexture().getNativeHandle())), avail,
+		reinterpret_cast<void*>(static_cast<intptr_t>(sceneRender->getTexture().getNativeHandle())), avail,
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 
@@ -566,25 +493,25 @@ void ZS::SceneInterface()
 		float scroolWheel = ImGui::GetIO().MouseWheel;
 		if (scroolWheel > 0)
 		{
-			this->sceneView.zoom(0.9f);
+			sceneView.zoom(0.9f);
 		}
 		else if (scroolWheel < 0)
 		{
-			this->sceneView.zoom(1.1f);
+			sceneView.zoom(1.1f);
 		}
 
 		if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle))
 		{
 			ImVec2 delta = ImGui::GetIO().MouseDelta;
-			this->sceneView.move(-delta.x, -delta.y);
+			sceneView.move(-delta.x, -delta.y);
 		}
 
 		sf::Vector2f imagePos = ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetItemRectMin());
 
 		sf::Vector2f localPos = mousePos - imagePos;
-		sf::Vector2f worldPos = this->sceneRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
+		sf::Vector2f worldPos = sceneRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
 
-		for (auto& gameObject : this->gameObjectList)
+		for (auto& gameObject : gameObjectList)
 		{
 			UpdateGrid(*gameObject, worldPos);
 		}
@@ -598,7 +525,7 @@ void ZS::TilesetInterface()
 	ImGui::Begin("Tileset");
 
 	ImVec2 avail = ImGui::GetContentRegionAvail();
-	sf::Vector2f textureSize = static_cast<sf::Vector2f>(this->tilesetRender->getSize());
+	sf::Vector2f textureSize = static_cast<sf::Vector2f>(tilesetRender->getSize());
 	sf::Vector2f screenSize = ImGuiUtility::ConvertImVec2toVector2f(avail);
 
 	sf::Vector2f mousePos = ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetMousePos());
@@ -607,16 +534,16 @@ void ZS::TilesetInterface()
 	{
 		if (textureSize != screenSize)
 		{
-			this->tilesetRender->create(static_cast<unsigned int>(screenSize.x),
+			tilesetRender->create(static_cast<unsigned int>(screenSize.x),
 				static_cast<unsigned int>(screenSize.y));
-			this->tilesetView.setSize(screenSize);
+			tilesetView.setSize(screenSize);
 			textureSize = screenSize;
 		}
 	}
 
 	std::string tilemapName;
 
-	this->selectedTileMapGO ? tilemapName = this->selectedTileMapGO->name : tilemapName = "None";
+	selectedTileMapGO ? tilemapName = selectedTileMapGO->name : tilemapName = "None";
 
 	ImGui::Text("Tile Map active : ");
 	ImGui::SameLine();
@@ -631,14 +558,14 @@ void ZS::TilesetInterface()
 		}
 		filter.Draw("##Filter", -FLT_MIN);
 
-		for (GameObject* tilemapList : this->tilemapList)
+		for (GameObject* tilemapList : tilemapList)
 		{
-			const bool isSelected = (tilemapList == this->selectedTileMapGO);
+			const bool isSelected = (tilemapList == selectedTileMapGO);
 			if (filter.PassFilter(tilemapList->name.c_str()))
 			{
 				if (ImGui::Selectable(tilemapList->name.c_str(), isSelected))
 				{
-					this->selectedTileMapGO = tilemapList;
+					selectedTileMapGO = tilemapList;
 				}
 			}
 		}
@@ -646,24 +573,24 @@ void ZS::TilesetInterface()
 		ImGui::EndCombo();
 	}
 
-	this->tilesetRender->setView(this->tilesetView);
+	tilesetRender->setView(tilesetView);
 
-	this->tilesetRender->clear(sf::Color::Transparent);
+	tilesetRender->clear(sf::Color::Transparent);
 
-	this->tilesetRender->draw(this->tileset.sprite);
+	tilesetRender->draw(tileset.sprite);
 
-	for (auto& cellList : this->tileset.grid.cellList)
+	for (auto& cellList : tileset.grid.cellList)
 	{
 		for (auto& cell : cellList)
 		{
-			this->tilesetRender->draw(cell.rect);
+			tilesetRender->draw(cell.rect);
 		}
 	}
 
-	this->tilesetRender->display();
+	tilesetRender->display();
 
 	ImGui::Image(
-		reinterpret_cast<void*>(static_cast<intptr_t>(this->tilesetRender->getTexture().getNativeHandle())), avail,
+		reinterpret_cast<void*>(static_cast<intptr_t>(tilesetRender->getTexture().getNativeHandle())), avail,
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 
@@ -674,65 +601,48 @@ void ZS::TilesetInterface()
 		float scroolWheel = ImGui::GetIO().MouseWheel;
 		if (scroolWheel > 0)
 		{
-			this->tilesetView.zoom(0.9f);
+			tilesetView.zoom(0.9f);
 		}
 		else if (scroolWheel < 0)
 		{
-			this->tilesetView.zoom(1.1f);
+			tilesetView.zoom(1.1f);
 		}
 
 		if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle))
 		{
 			ImVec2 delta = ImGui::GetIO().MouseDelta;
-			this->tilesetView.move(-delta.x, -delta.y);
+			tilesetView.move(-delta.x, -delta.y);
 		}
 
 		sf::Vector2f localPos = mousePos - imagePos;
-		sf::Vector2f worldPos = this->tilesetRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
+		sf::Vector2f worldPos = tilesetRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
 
-		this->tileset.grid.CellOverriding(worldPos);
-		this->tileset.grid.SelectCell(&this->selectedCell);
+		tileset.grid.CellOverriding(worldPos);
+		tileset.grid.SelectCell(&selectedCell);
 	}
 
 	ImGui::End();
 }
 
-ZS::GameObject::Component* ZS::GetComponent(GameObject* const _gO, GameObject::Component::ComponentType _type)
-{
-	for (GameObject::Component& component : _gO->componentList)
-	{
-		if (component.type == _type)
-		{
-			return &component;
-		}
-	}
-
-	for (auto child : _gO->child)
-	{
-		GameObject::Component* componentFound = GetComponent(child, _type);
-
-		if (componentFound)
-		{
-			return componentFound;
-		}
-	}
-
-	return nullptr;
-}
-
 void ZS::UpdateGrid(GameObject& _gO, sf::Vector2f _worldPos)
 {
-	for (auto& component : _gO.componentList)
+	for (auto component : _gO.componentList)
 	{
-		if (component.type == GameObject::Component::COMPONENT_TYPE_GRID)
+		if (component->type == Component::COMPONENT_TYPE_GRID)
 		{
-			GameObject::Component::Grid* grid = static_cast<GameObject::Component::Grid*>(component.data);
-			grid->CellOverriding(_worldPos);
+			Grid* grid = dynamic_cast<Grid*>(component->data.get());
+			if (grid)
+			{
+				grid->CellOverriding(_worldPos);
+			}
 		}
-		else if (component.type == GameObject::Component::COMPONENT_TYPE_TILEMAP)
+		else if (component->type == Component::COMPONENT_TYPE_TILEMAP)
 		{
-			GameObject::Component::Tilemap* tilemap = static_cast<GameObject::Component::Tilemap*>(component.data);
-			tilemap->grid.CellOverriding(_worldPos);
+			Tilemap* tilemap = dynamic_cast<Tilemap*>(component->data.get());
+			if (tilemap)
+			{
+				tilemap->grid.CellOverriding(_worldPos);
+			}
 		}
 	}
 
@@ -742,87 +652,6 @@ void ZS::UpdateGrid(GameObject& _gO, sf::Vector2f _worldPos)
 		{
 			UpdateGrid(*child, _worldPos);
 		}
-	}
-}
-
-void ZS::ResizeGrid(GameObject& _gO, sf::Vector2i& _gridSize, sf::Vector2i& _cellSize, sf::Vector2f& _cellGap)
-{
-	for (auto& component : _gO.componentList)
-	{
-		if (component.type == GameObject::Component::COMPONENT_TYPE_GRID)
-		{
-			GameObject::Component::Grid* grid = static_cast<GameObject::Component::Grid*>(component.data);
-
-			DestroyGrid(*grid);
-			CreateGrid(*grid, this->cellTexture, false);
-		}
-		else if (component.type == GameObject::Component::COMPONENT_TYPE_TILEMAP)
-		{
-			GameObject::Component::Tilemap* tilemap = static_cast<GameObject::Component::Tilemap*>(component.data);
-
-			tilemap->grid.gridSize = _gridSize;
-			tilemap->grid.cellSize = _cellSize;
-			tilemap->grid.cellGap = _cellGap;
-
-			auto gridID = SaveGridID(tilemap->grid);
-			DestroyGrid(tilemap->grid);
-			CreateGrid(tilemap->grid, this->cellTexture, true);
-			RestoreGridID(tilemap->grid, gridID);
-		}
-	}
-
-	if (!_gO.child.empty())
-	{
-		for (auto& child : _gO.child)
-		{
-			ResizeGrid(*child, _gridSize, _cellSize, _cellGap);
-		}
-	}
-}
-
-std::vector<std::vector<ZS::GameObject::Component::Grid::Cell>> ZS::SaveGridID(GameObject::Component::Grid& _grid)
-{
-	return _grid.cellList;
-}
-
-void ZS::RestoreGridID(GameObject::Component::Grid& _grid, const std::vector<std::vector<GameObject::Component::Grid::Cell>>& _savedGridID)
-{
-	for (auto& cellList : _grid.cellList)
-	{
-		for (auto& cell : cellList)
-		{
-			if (cell.line < _savedGridID.size() && cell.column < _savedGridID[cell.line].size())
-			{
-				const auto& savedCell = _savedGridID[cell.line][cell.column];
-				cell.spr = savedCell.spr;
-				cell.id = savedCell.id;
-			}
-		}
-	}
-}
-
-std::string GetComponentName(ZS::GameObject::Component::ComponentType type)
-{
-	switch (type)
-	{
-	case ZS::GameObject::Component::COMPONENT_TYPE_NONE:
-		return "None";
-	case ZS::GameObject::Component::COMPONENT_TYPE_GRID:
-		return "Grid";
-	case ZS::GameObject::Component::COMPONENT_TYPE_TILEMAP:
-		return "Tilemap";
-	case ZS::GameObject::Component::COMPONENT_TYPE_SPRITE:
-		return "Sprite";
-	case ZS::GameObject::Component::COMPONENT_TYPE_ANIMATION:
-		return "Animation";
-	case ZS::GameObject::Component::COMPONENT_TYPE_TEXT:
-		return "Text";
-	case ZS::GameObject::Component::COMPONENT_TYPE_COLLIDER:
-		return "Collider";
-	case ZS::GameObject::Component::COMPONENT_TYPE_RIGIDBODY:
-		return "Rigid Body";
-	default:
-		return "Unknown";
 	}
 }
 
@@ -861,17 +690,22 @@ void DrawGameObjectNode(ZS::GameObject& _gO, ZS::GameObject*& _selectedGO)
 
 void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>& _render)
 {
-	for (ZS::GameObject::Component& component : _gO.componentList)
+	for (auto child : _gO.child)
 	{
-		switch (component.type)
-		{
-		case ZS::GameObject::Component::COMPONENT_TYPE_NONE:
-			break;
-		case ZS::GameObject::Component::COMPONENT_TYPE_GRID:
-		{
-			ZS::GameObject::Component::Grid* grid = static_cast<ZS::GameObject::Component::Grid*>(component.data);
+		DrawGameObjectScene(*child, _render);
+	}
 
-			for (const auto& cellList : grid->cellList)
+	for (auto component : _gO.componentList)
+	{
+		switch (component->type)
+		{
+		case ZS::Component::COMPONENT_TYPE_NONE:
+			break;
+		case ZS::Component::COMPONENT_TYPE_GRID:
+		{
+			ZS::Grid& grid = dynamic_cast<ZS::Grid&>(*component->data);
+
+			for (const auto& cellList : grid.cellList)
 			{
 				for (const auto& cell : cellList)
 				{
@@ -880,11 +714,11 @@ void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>
 			}
 			break;
 		}
-		case ZS::GameObject::Component::COMPONENT_TYPE_TILEMAP:
+		case ZS::Component::COMPONENT_TYPE_TILEMAP:
 		{
-			ZS::GameObject::Component::Tilemap* tilemap = static_cast<ZS::GameObject::Component::Tilemap*>(component.data);
+			ZS::Tilemap& tilemap = dynamic_cast<ZS::Tilemap&>(*component->data);
 
-			for (auto& cellList : tilemap->grid.cellList)
+			for (auto& cellList : tilemap.grid.cellList)
 			{
 				for (auto& cell : cellList)
 				{
@@ -893,65 +727,18 @@ void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>
 			}
 			break;
 		}
-		case ZS::GameObject::Component::COMPONENT_TYPE_SPRITE:
+		case ZS::Component::COMPONENT_TYPE_SPRITE:
 			break;
-		case ZS::GameObject::Component::COMPONENT_TYPE_ANIMATION:
+		case ZS::Component::COMPONENT_TYPE_ANIMATION:
 			break;
-		case ZS::GameObject::Component::COMPONENT_TYPE_TEXT:
+		case ZS::Component::COMPONENT_TYPE_TEXT:
 			break;
-		case ZS::GameObject::Component::COMPONENT_TYPE_COLLIDER:
+		case ZS::Component::COMPONENT_TYPE_COLLIDER:
 			break;
-		case ZS::GameObject::Component::COMPONENT_TYPE_RIGIDBODY:
+		case ZS::Component::COMPONENT_TYPE_RIGIDBODY:
 			break;
 		default:
 			break;
 		}
 	}
-
-	if (!_gO.child.empty())
-	{
-		for (ZS::GameObject*& child : _gO.child)
-		{
-			DrawGameObjectScene(*child, _render);
-		}
-	}
-}
-
-void CreateGrid(ZS::GameObject::Component::Grid& _grid, sf::Texture& _cellTexture, bool _giveID)
-{
-	size_t id = 0;
-
-	for (int y = 0; y < _grid.gridSize.y; ++y)
-	{
-		std::vector<ZS::GameObject::Component::Grid::Cell> tempCellList;
-		for (int x = 0; x < _grid.gridSize.x; ++x)
-		{
-			ZS::GameObject::Component::Grid::Cell tempCell;
-
-			_giveID ? tempCell.id = ++id : tempCell.id = 0;
-
-			tempCell.line = y;
-			tempCell.column = x;
-
-			tempCell.mouseInside = false;
-			tempCell.selected = false;
-
-			tempCell.rect.setSize(sf::Vector2f(_grid.cellSize.x, _grid.cellSize.y));
-			tempCell.rect.setPosition(static_cast<float>(x * (_grid.cellSize.x + _grid.cellGap.x)), static_cast<float>(y * (_grid.cellSize.y + _grid.cellGap.y)));
-			tempCell.rect.setTexture(&_cellTexture);
-
-			tempCellList.push_back(tempCell);
-		}
-		_grid.cellList.push_back(tempCellList);
-	}
-}
-
-void DestroyGrid(ZS::GameObject::Component::Grid& _grid)
-{
-	for (auto& cellList : _grid.cellList)
-	{
-		cellList.clear();
-	}
-
-	_grid.cellList.clear();
 }
