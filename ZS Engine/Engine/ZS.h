@@ -1,12 +1,15 @@
 #pragma once
+
+#include <string>
+#include <functional>
+#include <filesystem>
+
 #include "../Common.h"
 #include "Layer/Layer.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/Component/Component.h"
 #include "GameObject/Component/Grid/Grid.h"
 #include "GameObject/Component/Tilemap/Tilemap.h"
-#include <string>
-#include <functional>
 
 #define ZS_VERSION "0.0.1"
 
@@ -54,12 +57,8 @@ namespace ZS
 	inline Grid::Cell* selectedCell;
 	inline std::vector<GameObject*> tilemapList;
 
+	inline static std::string currentPath = std::filesystem::current_path().string();
+	inline static std::string selectedFile;
 
-	void HierarchyInterface();
-	void InspectorInterface();
-	void SceneInterface();
-	void TilesetInterface();
-
-
-	void UpdateGrid(GameObject& _gO, sf::Vector2f _worldPos);
+	inline bool openPaletteEditor;
 };

@@ -177,6 +177,7 @@
     <ClCompile Include="Dependencies\include\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\GameObject\Component\Component.cpp" />
     <ClCompile Include="Engine\GameObject\Component\Grid\Grid.cpp" />
+    <ClCompile Include="Engine\GameObject\Component\Script\MonoBehaviour.cpp" />
     <ClCompile Include="Engine\GameObject\Component\Tilemap\Tilemap.cpp" />
     <ClCompile Include="Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Engine\ZS.cpp" />
@@ -304,6 +305,7 @@
     <ClInclude Include="Engine\GameObject\Component\Component.h" />
     <ClInclude Include="Engine\GameObject\Component\Grid\Grid.h" />
     <ClInclude Include="Engine\GameObject\Component\IComponentData.h" />
+    <ClInclude Include="Engine\GameObject\Component\Script\MonoBehaviour.h" />
     <ClInclude Include="Engine\GameObject\Component\Tilemap\Tilemap.h" />
     <ClInclude Include="Engine\GameObject\GameObject.h" />
     <ClInclude Include="Engine\Layer\Layer.h" />

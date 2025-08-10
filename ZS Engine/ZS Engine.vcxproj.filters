@@ -111,6 +111,9 @@
     <ClCompile Include="Engine\GameObject\Component\Tilemap\Tilemap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\GameObject\Component\Script\MonoBehaviour.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\include\GL\freeglut.h">
@@ -486,6 +489,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\GameObject\Component\Tilemap\Tilemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GameObject\Component\Script\MonoBehaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
