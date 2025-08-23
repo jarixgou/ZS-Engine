@@ -8,6 +8,7 @@ public:
 
 	virtual void Start();
 	virtual void Update(float _dt);
+	virtual void Cleanup();
 
 	bool enable = true;
 	ZS::GameObject* gameObject = nullptr;

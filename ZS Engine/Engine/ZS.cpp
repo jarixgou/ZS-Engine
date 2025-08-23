@@ -1,25 +1,25 @@
 ﻿#include "ZS.h"
 
-#include "ImGui/imgui_internal.h"
+using namespace ZS;
 
-void HierarchyInterface();
-void InspectorInterface();
-void SceneInterface();
-void TilesetInterface();
+static void HierarchyInterface();
+static void InspectorInterface();
+static void SceneInterface();
+static void TilesetInterface();
 
-void UpdateGrid(ZS::GameObject& _gO, sf::Vector2f _worldPos);
+void UpdateGrid(GameObject& _gO, sf::Vector2f _worldPos);
 
 void DrawFileExplorer();
 
-void DrawGameObjectNode(ZS::GameObject& _gO, ZS::GameObject*& _selectedGO);
-void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>& _render);
+void DrawGameObjectNode(GameObject& _gO, GameObject*& _selectedGO);
+void DrawGameObjectScene(GameObject& _gO, std::unique_ptr<sf::RenderTexture>& _render);
 
-sf::Vector2f ZS::ImGuiUtility::ConvertImVec2toVector2f(const ImVec2& _vec)
+sf::Vector2f ImGuiUtility::ConvertImVec2toVector2f(const ImVec2& _vec)
 {
 	return { _vec.x, _vec.y };
 }
 
-ImVec2 ZS::ImGuiUtility::ConvertVector2ftoImVec2(const sf::Vector2f& _vec)
+ImVec2 ImGuiUtility::ConvertVector2ftoImVec2(const sf::Vector2f& _vec)
 {
 	return { _vec.x, _vec.y };
 }
@@ -40,28 +40,28 @@ void ZS::Load()
 	colors[ImGuiCol_Header] = ImVec4(0.2f, 0.5f, 0.8f, 1.0f);
 	colors[ImGuiCol_HeaderHovered] = ImVec4(0.3f, 0.6f, 0.9f, 1.0f);
 	colors[ImGuiCol_HeaderActive] = ImVec4(0.1f, 0.4f, 0.7f, 1.0f);
-	colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); 
-	colors[ImGuiCol_Border] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f); 
+	colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	colors[ImGuiCol_Border] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 	colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
-	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f); 
-	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f); 
+	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
-	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f); 
+	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
 	colors[ImGuiCol_Separator] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 	colors[ImGuiCol_SeparatorActive] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
 	colors[ImGuiCol_Tab] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_TabHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f); 
-	colors[ImGuiCol_TabActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f); 
+	colors[ImGuiCol_TabHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_TabActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
 	colors[ImGuiCol_TabUnfocused] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f); 
-	colors[ImGuiCol_CheckMark] = ImVec4(0.2f, 0.5f, 0.8f, 1.0f); 
-	colors[ImGuiCol_SliderGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f); 
+	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_CheckMark] = ImVec4(0.2f, 0.5f, 0.8f, 1.0f);
+	colors[ImGuiCol_SliderGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
 	colors[ImGuiCol_FrameBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 	colors[ImGuiCol_FrameBgActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_PopupBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f); 
+	colors[ImGuiCol_PopupBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
 	colors[ImGuiCol_MenuBarBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 	colors[ImGuiCol_ChildBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
 	colors[ImGuiCol_ResizeGrip] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
@@ -69,7 +69,7 @@ void ZS::Load()
 	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
 	colors[ImGuiCol_TableHeaderBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 	colors[ImGuiCol_TableRowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f); 
+	colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 	colors[ImGuiCol_TableBorderStrong] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 	colors[ImGuiCol_TableBorderLight] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 
@@ -117,21 +117,6 @@ void ZS::PollEvent(sf::RenderWindow& _renderWindow, const sf::Event& _event)
 
 void ZS::Update(sf::RenderWindow& _renderWindow, float _dt)
 {
-	/* --- Paint tiles --- */
-	if (selectedTileMapGO)
-	{
-		Component* tilemapComponent = selectedTileMapGO->GetComponent(Component::COMPONENT_TYPE_TILEMAP);
-
-		if (tilemapComponent && selectedCell)
-		{
-			Tilemap* tilemapData = dynamic_cast<Tilemap*>(tilemapComponent->data.get());
-			if (tilemapData)
-			{
-				tilemapData->PaintTiles(selectedCell, tileset.texture);
-			}
-		}
-	}
-
 	/* --- Dock space --- */
 	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -173,9 +158,15 @@ void ZS::Update(sf::RenderWindow& _renderWindow, float _dt)
 		// Edit menu
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo")) { /* action */ }
+			if (ImGui::MenuItem("Undo"))
+			{
+				/* action */
+			}
 
-			if (ImGui::MenuItem("Redo")) { /* action */ }
+			if (ImGui::MenuItem("Redo"))
+			{
+				/* action */
+			}
 
 			ImGui::EndMenu();
 		}
@@ -267,43 +258,10 @@ void HierarchyInterface()
 			{
 				if (ImGui::MenuItem("Rectangular"))
 				{
-					ZS::GameObject* gridGO = new ZS::GameObject;
-					gridGO->parent = nullptr;
-					gridGO->name = "Grid";
-					gridGO->tag = nullptr;
-					gridGO->layer = nullptr;
-					gridGO->transform = { };
+					GameObject* gridGO = new GameObject;
+					gridGO->CreateRectangularTilemap(cellTexture, tilemapList);
 
-					ZS::Component* gridComponent = new ZS::Component;
-					gridComponent->type = ZS::Component::ComponentType::COMPONENT_TYPE_GRID;
-
-					std::unique_ptr<ZS::Grid> gridData = std::make_unique<ZS::Grid>();
-					gridData->CreateGrid(ZS::cellTexture, false);
-
-					gridComponent->data = std::move(gridData);
-					gridGO->componentList.push_back(gridComponent);
-
-					ZS::GameObject* tilemapGO = new ZS::GameObject;
-					tilemapGO->parent = gridGO;
-					tilemapGO->name = "Tilemap";
-					tilemapGO->tag = nullptr;
-					tilemapGO->layer = nullptr;
-					tilemapGO->transform = { };
-
-					ZS::Component* tilemapComponent = new ZS::Component;
-					tilemapComponent->type = ZS::Component::ComponentType::COMPONENT_TYPE_TILEMAP;
-					std::unique_ptr<ZS::Tilemap> tilemapData = std::make_unique<ZS::Tilemap>();
-					tilemapData->grid.CreateGrid(ZS::cellTexture, false);
-
-					tilemapComponent->data = std::move(tilemapData);
-
-					tilemapGO->componentList.push_back(tilemapComponent);
-
-					ZS::tilemapList.push_back(tilemapGO);
-
-					gridGO->child.push_back(tilemapGO);
-
-					ZS::gameObjectList.push_back(gridGO);
+					gameObjectList.push_back(gridGO);
 				}
 
 				ImGui::EndMenu();
@@ -359,17 +317,17 @@ void InspectorInterface()
 {
 	ImGui::Begin("Inspector");
 
-	if (ZS::selectedGO)
+	if (selectedGO)
 	{
 		ImGui::Text("Name : ");
 		ImGui::SameLine();
 		char buffer[256];
-		strcpy_s(buffer, sizeof(buffer), ZS::selectedGO->name.c_str());
+		strcpy_s(buffer, sizeof(buffer), selectedGO->name.c_str());
 		buffer[sizeof(buffer) - 1] = '\0';
 
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer)))
 		{
-			ZS::selectedGO->name = std::string(buffer);
+			selectedGO->name = std::string(buffer);
 		}
 
 		if (ImGui::CollapsingHeader("Transform"))
@@ -406,89 +364,83 @@ void InspectorInterface()
 			ImGui::DragFloat("##ScaleY", &ZS::selectedGO->transform.scale.y, 0.01f, 0.01f, 10.0f);
 		}
 
-		for (ZS::Component* component : ZS::selectedGO->componentList)
+		for (Component* component : ZS::selectedGO->componentList)
 		{
-			std::string componentName = component->GetComponentName();
+			ImGui::PushID(component);
 
-			if (ImGui::CollapsingHeader(componentName.c_str()))
+			if (ImGui::CollapsingHeader((component->data->Name() + "##header").c_str()))
 			{
-				if (component->type == ZS::Component::COMPONENT_TYPE_GRID)
+				if (auto* grid = selectedGO->GetComponent<Grid>())
 				{
-					ZS::Grid* grid = dynamic_cast<ZS::Grid*>(component->data.get());
-					if (grid)
+					/* --- Gride size --- */
+					ImGui::Text("Grid Size : ");
+					ImGui::SameLine();
+					ImGui::Text("X");
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100);
+
+					static int prevGridSizeX = -1;
+					ImGui::DragInt("##GridSizeX", &grid->gridSize.x, 1, 0, INT_MAX);
+					if (ImGui::IsItemDeactivatedAfterEdit() && prevGridSizeX != grid->gridSize.x)
 					{
-						/* --- Gride size --- */
-						ImGui::Text("Grid Size : ");
-						ImGui::SameLine();
-						ImGui::Text("X");
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(100);
+						selectedGO->ResizeGrid(*grid, cellTexture, tileset.texture);
 
-						static int prevGridSizeX = -1;
-						ImGui::DragInt("##GridSizeX", &grid->gridSize.x, 1, 0, INT_MAX);
-						if (ImGui::IsItemDeactivatedAfterEdit() && prevGridSizeX != grid->gridSize.x)
-						{
-							ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
+						prevGridSizeX = grid->gridSize.x;
+					}
 
-							prevGridSizeX = grid->gridSize.x;
-						}
+					ImGui::SameLine();
+					ImGui::Text("Y");
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100);
 
-						ImGui::SameLine();
-						ImGui::Text("Y");
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(100);
+					static int prevGridSizeY = -1;
+					ImGui::DragInt("##GridSizeY", &grid->gridSize.y, 1, 0, INT_MAX);
+					if (ImGui::IsItemDeactivatedAfterEdit() && grid->gridSize.y != prevGridSizeY)
+					{
+						selectedGO->ResizeGrid(*grid, cellTexture, ZS::tileset.texture);
+					}
 
-						static int prevGridSizeY = -1;
-						ImGui::DragInt("##GridSizeY", &grid->gridSize.y, 1, 0, INT_MAX);
-						if (ImGui::IsItemDeactivatedAfterEdit() && grid->gridSize.y != prevGridSizeY)
-						{
-							ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
-						}
+					/* --- Cell size --- */
+					ImGui::Text("Cell Size : ");
+					ImGui::SameLine();
+					ImGui::Text("X");
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100);
+					if (ImGui::DragInt("##CellSizeX", &grid->cellSize.x, 1, INT_MAX))
+					{
+						ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
+					}
+					ImGui::SameLine();
+					ImGui::Text("Y");
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100);
+					if (ImGui::DragInt("##CellSizeY", &grid->cellSize.y, 1, 0, INT_MAX))
+					{
+						ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
+					}
 
-						/* --- Cell size --- */
-						ImGui::Text("Cell Size : ");
-						ImGui::SameLine();
-						ImGui::Text("X");
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(100);
-						if (ImGui::DragInt("##CellSizeX", &grid->cellSize.x, 1, INT_MAX))
-						{
-							ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
-						}
-						ImGui::SameLine();
-						ImGui::Text("Y");
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(100);
-						if (ImGui::DragInt("##CellSizeY", &grid->cellSize.y, 1, 0, INT_MAX))
-						{
-							ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
-						}
-
-						/* --- Cell gap --- */
-						ImGui::Text("Cell Gap : ");
-						ImGui::SameLine();
-						ImGui::Text("X");
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(100);
-						if (ImGui::DragFloat("##CellGapX", &grid->cellGap.x, 0.1f, 0.0f, INFINITY))
-						{
-							ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
-						}
-						ImGui::SameLine();
-						ImGui::Text("Y");
-						ImGui::SameLine();
-						ImGui::SetNextItemWidth(100);
-						if (ImGui::DragFloat("##CellGapY", &grid->cellGap.y, 0.1f, 0.0f, INFINITY))
-						{
-							ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
-						}
+					/* --- Cell gap --- */
+					ImGui::Text("Cell Gap : ");
+					ImGui::SameLine();
+					ImGui::Text("X");
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100);
+					if (ImGui::DragFloat("##CellGapX", &grid->cellGap.x, 0.1f, 0.0f, INFINITY))
+					{
+						ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
+					}
+					ImGui::SameLine();
+					ImGui::Text("Y");
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100);
+					if (ImGui::DragFloat("##CellGapY", &grid->cellGap.y, 0.1f, 0.0f, INFINITY))
+					{
+						ZS::selectedGO->ResizeGrid(*grid, ZS::cellTexture, ZS::tileset.texture);
 					}
 				}
 
-				if (component->type == ZS::Component::COMPONENT_TYPE_TILEMAP)
+				if (auto* tilemap = selectedGO->GetComponent<Tilemap>())
 				{
-					ZS::Tilemap* tilemap = dynamic_cast<ZS::Tilemap*>(component->data.get());
-
 					/* --- Sprite color --- */
 					float color[4] = { tilemap->color.r / 255.f, tilemap->color.g / 255.f, tilemap->color.b / 255.f, tilemap->color.a / 255.f };
 
@@ -503,11 +455,40 @@ void InspectorInterface()
 					}
 				}
 			}
+			ImGui::PopID();
 		}
 
 		if (ImGui::Button("Add component"))
 		{
+			ImGui::OpenPopup("Add component");
+		}
 
+		ImGui::SetNextItemWidth(100);
+		if (ImGui::BeginPopup("Add component"))
+		{
+			static ImGuiTextFilter filter;
+			if (ImGui::IsWindowAppearing())
+			{
+				ImGui::SetKeyboardFocusHere();
+				filter.Clear();
+			}
+			filter.Draw("##Filter", -FLT_MIN);
+
+			ImGui::Separator();
+
+			for (auto* name : kAvailableComponents)
+			{
+				const bool isSelected = false;
+				if (filter.PassFilter(name))
+				{
+					if (ImGui::Selectable(name, isSelected))
+					{
+
+					}
+				}
+			}
+
+			ImGui::End();
 		}
 	}
 	else
@@ -578,6 +559,16 @@ void SceneInterface()
 		sf::Vector2f localPos = mousePos - imagePos;
 		sf::Vector2f worldPos = ZS::sceneRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
 
+		/* --- Paint tiles --- */
+		if (selectedTileMapGO)
+		{
+			auto* tilemap = selectedTileMapGO->GetComponent<Tilemap>();
+			if (tilemap && selectedCell)
+			{
+				tilemap->PaintTiles(ZS::selectedCell, ZS::tileset.texture);
+			}
+		}
+
 		for (auto& gameObject : ZS::gameObjectList)
 		{
 			UpdateGrid(*gameObject, worldPos);
@@ -610,7 +601,7 @@ void TilesetInterface()
 
 	std::string tilemapName;
 
-	ZS::selectedTileMapGO ? tilemapName = ZS::selectedTileMapGO->name : tilemapName = "None";
+	selectedTileMapGO ? tilemapName = ZS::selectedTileMapGO->name : tilemapName = "None";
 
 	ImGui::Text("Tile Map active : ");
 	ImGui::SameLine();
@@ -625,7 +616,9 @@ void TilesetInterface()
 		}
 		filter.Draw("##Filter", -FLT_MIN);
 
-		for (ZS::GameObject* tilemapList : ZS::tilemapList)
+		ImGui::Separator();
+
+		for (GameObject* tilemapList : tilemapList)
 		{
 			const bool isSelected = (tilemapList == ZS::selectedTileMapGO);
 			if (filter.PassFilter(tilemapList->name.c_str()))
@@ -702,21 +695,15 @@ void UpdateGrid(ZS::GameObject& _gO, sf::Vector2f _worldPos)
 {
 	for (auto component : _gO.componentList)
 	{
-		if (component->type == ZS::Component::COMPONENT_TYPE_GRID)
+		if (auto* grid = _gO.GetComponent<ZS::Grid>())
 		{
-			ZS::Grid* grid = dynamic_cast<ZS::Grid*>(component->data.get());
-			if (grid)
-			{
-				grid->CellOverriding(_worldPos);
-			}
+			grid->CellOverriding(_worldPos);
+
 		}
-		else if (component->type == ZS::Component::COMPONENT_TYPE_TILEMAP)
+
+		if (auto* tilemap = _gO.GetComponent<ZS::Tilemap>())
 		{
-			ZS::Tilemap* tilemap = dynamic_cast<ZS::Tilemap*>(component->data.get());
-			if (tilemap)
-			{
-				tilemap->grid.CellOverriding(_worldPos);
-			}
+			tilemap->grid.CellOverriding(_worldPos);
 		}
 	}
 
@@ -807,50 +794,25 @@ void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>
 		DrawGameObjectScene(*child, _render);
 	}
 
-	for (auto component : _gO.componentList)
+	if (auto* grid = _gO.GetComponent<Grid>())
 	{
-		switch (component->type)
+		for (const auto& cellList : grid->cellList)
 		{
-		case ZS::Component::COMPONENT_TYPE_NONE:
-			break;
-		case ZS::Component::COMPONENT_TYPE_GRID:
-		{
-			ZS::Grid& grid = dynamic_cast<ZS::Grid&>(*component->data);
-
-			for (const auto& cellList : grid.cellList)
+			for (const auto& cell : cellList)
 			{
-				for (const auto& cell : cellList)
-				{
-					_render->draw(cell.rect);
-				}
+				_render->draw(cell.rect);
 			}
-			break;
 		}
-		case ZS::Component::COMPONENT_TYPE_TILEMAP:
-		{
-			ZS::Tilemap& tilemap = dynamic_cast<ZS::Tilemap&>(*component->data);
+	}
 
-			for (auto& cellList : tilemap.grid.cellList)
+	if (auto* tilemap = _gO.GetComponent<Tilemap>())
+	{
+		for (auto& cellList : tilemap->grid.cellList)
+		{
+			for (auto& cell : cellList)
 			{
-				for (auto& cell : cellList)
-				{
-					_render->draw(cell.spr);
-				}
+				_render->draw(cell.spr);
 			}
-			break;
-		}
-		case ZS::Component::COMPONENT_TYPE_SPRITE:
-			break;
-		case ZS::Component::COMPONENT_TYPE_ANIMATION:
-			break;
-		case ZS::Component::COMPONENT_TYPE_TEXT:
-			break;
-		case ZS::Component::COMPONENT_TYPE_COLLIDER:
-			break;
-		case ZS::Component::COMPONENT_TYPE_RIGIDBODY:
-			break;
-		default:
-			break;
 		}
 	}
 }

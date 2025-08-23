@@ -34,3 +34,8 @@ void ZS::Tilemap::ChangeColor()
 		}
 	}
 }
+
+const std::string ZS::Tilemap::Name() const
+{
+	return "Tilemap";
+}

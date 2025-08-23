@@ -3,63 +3,75 @@
 std::vector<std::vector<size_t>> SaveCellID(const ZS::Grid& _grid);
 void RestoreGridID(ZS::Grid& _grid, const std::vector<std::vector<size_t>>& _savedGridID, sf::Texture& _tilesetTexture);
 
-ZS::Component* ZS::GameObject::GetComponent(Component::ComponentType _type) const
+void ZS::GameObject::CreateRectangularTilemap(sf::Texture& _cellTexture, std::vector<GameObject*>& _tilemapList)
 {
+	this->parent = nullptr;
+	this->name = "Grid";
+	this->tag = nullptr;
+	this->layer = nullptr;
+	this->transform = { };
 
-	for (const auto component : this->componentList)
-	{
-		if (component->type == _type)
-		{
-			return component;
-		}
-	}
+	Component* gridComponent = new Component;
+	std::unique_ptr<Grid> gridData = std::make_unique<Grid>();
+	gridData->CreateGrid(_cellTexture, false);
+	gridComponent->data = std::move(gridData);
+	this->componentList.push_back(gridComponent);
 
-	for (const auto child : this->child)
-	{
-		Component* found = child->GetComponent(_type);
-		if (found)
-		{
-			return found;
-		}
-	}
+	GameObject* tilemapGO = new GameObject;
+	tilemapGO->parent = this;
+	tilemapGO->name = "Tilemap";
+	tilemapGO->tag = nullptr;
+	tilemapGO->layer = nullptr;
+	tilemapGO->transform = { };
 
-	return nullptr;
+	Component* tilemapComponent = new Component;
+	std::unique_ptr<Tilemap> tilemapData = std::make_unique<Tilemap>();
+	tilemapData->grid.CreateGrid(_cellTexture, false);
+	tilemapComponent->data = std::move(tilemapData);
+	tilemapGO->componentList.push_back(tilemapComponent);
+
+	_tilemapList.push_back(tilemapGO);
+
+	this->child.push_back(tilemapGO);
 }
 
-void ZS::GameObject::ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf::Texture& _tilesetTexture) const
+template <typename T>
+T* ZS::GameObject::GetComponent()
 {
 	for (auto component : this->componentList)
 	{
-		if (component->type == Component::COMPONENT_TYPE_GRID)
+		if (auto* data = dynamic_cast<T*>(component->data.get()))
 		{
-			Grid* gridData = dynamic_cast<Grid*>(component->data.get());
-			if (gridData)
-			{
-				gridData->gridSize = _grid.gridSize;
-				gridData->cellSize = _grid.cellSize;
-				gridData->cellGap = _grid.cellGap;
-
-				gridData->DestroyGrid();
-				gridData->CreateGrid(_cellTexture, false);
-			}
-		}
-		else if (component->type == Component::COMPONENT_TYPE_TILEMAP)
-		{
-			Tilemap* tilemapData = dynamic_cast<Tilemap*>(component->data.get());
-			if (tilemapData)
-			{
-				tilemapData->grid.gridSize = _grid.gridSize;
-				tilemapData->grid.cellSize = _grid.cellSize;
-				tilemapData->grid.cellGap = _grid.cellGap;
-
-				auto savedGridID = SaveCellID(tilemapData->grid);
-				tilemapData->grid.DestroyGrid();
-				tilemapData->grid.CreateGrid(_cellTexture, false);
-				RestoreGridID(tilemapData->grid, savedGridID, _tilesetTexture);
-			}
+			return data;
 		}
 	}
+	return nullptr;
+}
 
+void ZS::GameObject::ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf::Texture& _tilesetTexture) 
+{
+	if (auto* grid = this->GetComponent<Grid>())
+	{
+		grid->gridSize = _grid.gridSize;
+		grid->cellSize = _grid.cellSize;
+		grid->cellGap = _grid.cellGap;
+
+		grid->DestroyGrid();
+		grid->CreateGrid(_cellTexture, false);
+	}
+	
+	if (auto* tilemap = this->GetComponent<Tilemap>())
+	{
+		tilemap->grid.gridSize = _grid.gridSize;
+		tilemap->grid.cellSize = _grid.cellSize;
+		tilemap->grid.cellGap = _grid.cellGap;
+
+		auto savedGridID = SaveCellID(tilemap->grid);
+		tilemap->grid.DestroyGrid();
+		tilemap->grid.CreateGrid(_cellTexture, false);
+		RestoreGridID(tilemap->grid, savedGridID, _tilesetTexture);
+	}
+	
 	for (auto child : this->child)
 	{
 		child->ResizeGrid(_grid, _cellTexture, _tilesetTexture);

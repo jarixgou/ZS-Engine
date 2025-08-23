@@ -81,3 +81,8 @@ void ZS::Grid::DestroyGrid()
 	this->cellList.clear();
 
 }
+
+const std::string ZS::Grid::Name() const
+{
+	return "Grid";
+}

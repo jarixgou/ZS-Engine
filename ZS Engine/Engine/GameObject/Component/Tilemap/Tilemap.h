@@ -14,5 +14,8 @@ namespace ZS
 		sf::Color color;
 
 		Grid grid;
+
+	private:
+		const std::string Name() const override;
 	}Tilemap;
 }

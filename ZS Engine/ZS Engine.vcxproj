@@ -182,6 +182,8 @@
     <ClCompile Include="Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Engine\ZS.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Utils\ConvexHull\ConvexHull.cpp" />
+    <ClCompile Include="Utils\Math\Math.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
@@ -310,6 +312,8 @@
     <ClInclude Include="Engine\GameObject\GameObject.h" />
     <ClInclude Include="Engine\Layer\Layer.h" />
     <ClInclude Include="Engine\ZS.h" />
+    <ClInclude Include="Utils\ConvexHull\ConvexHull.h" />
+    <ClInclude Include="Utils\Math\Math.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\DLL\x64\Debug\openal32.dll" />

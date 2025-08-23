@@ -23,18 +23,24 @@ namespace ZS
 			Cell() = default;
 			Cell(size_t _line, size_t _column, const sf::Vector2i& _size, const sf::Vector2f& _gap, sf::Texture& _texture);
 		}Cell;
-
+		
+		
 		sf::Vector2i gridSize;
 		sf::Vector2i cellSize;
 		sf::Vector2f cellGap;
 
 		std::vector<std::vector<Cell>> cellList;
 
+		
+		
 		void CellOverriding(sf::Vector2f _worldPos);
 		void SelectCell(Cell** _selectedCell);
 
 		void CreateGrid(sf::Texture& _cellTexture, bool _giveID);
 		void DestroyGrid();
+
+		private:
+		const std::string Name() const override;
 	}Grid;
 
 }

@@ -29,8 +29,11 @@ namespace ZS
 
 			std::vector<Component*> componentList;
 
-			Component* GetComponent(Component::ComponentType _type) const;
+			void CreateRectangularTilemap(sf::Texture& _cellTexture, std::vector<GameObject*>& _tilemapList);
+			
+			template<typename T>
+			T* GetComponent(void);
 
-			void ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf::Texture& _tilesetTexture) const;
+			void ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf::Texture& _tilesetTexture);
 		}GameObject;
 }
