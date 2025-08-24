@@ -30,5 +30,7 @@
 
 # Custom
 *.pdb
-ZS Engine/x64
+Core/x64
+API/x64
 .vs/
+.idea/
