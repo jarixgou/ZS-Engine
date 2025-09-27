@@ -89,7 +89,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)/Dependencies/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\ZS Engine\API;$(SolutionDir)$(ProjectName)/Dependencies/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)/Dependencies/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\ZS Engine\API;$(SolutionDir)$(ProjectName)/Dependencies/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)/Dependencies/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)/Dependencies/include;$(SolutionDir)API</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -140,7 +140,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)/Dependencies/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\ZS Engine\API;$(SolutionDir)$(ProjectName)/Dependencies/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -169,6 +169,7 @@
   </Target>
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
+    <ClCompile Include="DebugInfo.cpp" />
     <ClCompile Include="Dependencies\include\ImGui\imgui-SFML.cpp" />
     <ClCompile Include="Dependencies\include\ImGui\imgui.cpp" />
     <ClCompile Include="Dependencies\include\ImGui\imgui_demo.cpp" />
@@ -177,7 +178,6 @@
     <ClCompile Include="Dependencies\include\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\GameObject\Component\Component.cpp" />
     <ClCompile Include="Engine\GameObject\Component\Grid\Grid.cpp" />
-    <ClCompile Include="Engine\GameObject\Component\Script\MonoBehaviour.cpp" />
     <ClCompile Include="Engine\GameObject\Component\Tilemap\Tilemap.cpp" />
     <ClCompile Include="Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Engine\ZS.cpp" />
@@ -187,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="DebugInfo.h" />
     <ClInclude Include="Dependencies\include\GL\freeglut.h" />
     <ClInclude Include="Dependencies\include\GL\freeglut_ext.h" />
     <ClInclude Include="Dependencies\include\GL\freeglut_std.h" />
@@ -307,7 +308,6 @@
     <ClInclude Include="Engine\GameObject\Component\Component.h" />
     <ClInclude Include="Engine\GameObject\Component\Grid\Grid.h" />
     <ClInclude Include="Engine\GameObject\Component\IComponentData.h" />
-    <ClInclude Include="Engine\GameObject\Component\Script\MonoBehaviour.h" />
     <ClInclude Include="Engine\GameObject\Component\Tilemap\Tilemap.h" />
     <ClInclude Include="Engine\GameObject\GameObject.h" />
     <ClInclude Include="Engine\Layer\Layer.h" />
@@ -356,6 +356,11 @@
     <Library Include="Dependencies\lib\Release\sfml-network.lib" />
     <Library Include="Dependencies\lib\Release\sfml-system.lib" />
     <Library Include="Dependencies\lib\Release\sfml-window.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\API\API.vcxproj">
+      <Project>{38183023-5609-4f50-af79-2115bf61add4}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,10 +2,12 @@
 
 using namespace ZS;
 
-static void HierarchyInterface();
-static void InspectorInterface();
-static void SceneInterface();
-static void TilesetInterface();
+static void LoadImGuiStyle(void);
+
+static auto HierarchyInterface() -> void;
+static auto InspectorInterface() -> void;
+static auto SceneInterface() -> void;
+static auto TilesetInterface() -> void;
 
 void UpdateGrid(GameObject& _gO, sf::Vector2f _worldPos);
 
@@ -26,52 +28,9 @@ ImVec2 ImGuiUtility::ConvertVector2ftoImVec2(const sf::Vector2f& _vec)
 
 void ZS::Load()
 {
-	/* --- Load ImGui style --- */
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowRounding = 5.0f;
-	style.FrameRounding = 3.0f;
-	style.GrabRounding = 3.0f;
+	DEBUG_INFO("Load ZS Engine", GREEN);
 
-	ImVec4* colors = style.Colors;
-	colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_Button] = ImVec4(0.2f, 0.4f, 0.7f, 1.0f);
-	colors[ImGuiCol_ButtonHovered] = ImVec4(0.3f, 0.5f, 0.8f, 1.0f);
-	colors[ImGuiCol_ButtonActive] = ImVec4(0.1f, 0.3f, 0.6f, 1.0f);
-	colors[ImGuiCol_Header] = ImVec4(0.2f, 0.5f, 0.8f, 1.0f);
-	colors[ImGuiCol_HeaderHovered] = ImVec4(0.3f, 0.6f, 0.9f, 1.0f);
-	colors[ImGuiCol_HeaderActive] = ImVec4(0.1f, 0.4f, 0.7f, 1.0f);
-	colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	colors[ImGuiCol_Border] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
-	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
-	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
-	colors[ImGuiCol_Separator] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-	colors[ImGuiCol_SeparatorActive] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
-	colors[ImGuiCol_Tab] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_TabHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-	colors[ImGuiCol_TabActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_TabUnfocused] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_CheckMark] = ImVec4(0.2f, 0.5f, 0.8f, 1.0f);
-	colors[ImGuiCol_SliderGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
-	colors[ImGuiCol_FrameBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-	colors[ImGuiCol_FrameBgActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_PopupBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_MenuBarBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_ChildBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_ResizeGrip] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-	colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
-	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
-	colors[ImGuiCol_TableHeaderBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_TableRowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-	colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
-	colors[ImGuiCol_TableBorderStrong] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_TableBorderLight] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	LoadImGuiStyle();
 
 	cellTexture.loadFromFile("Assets/Map editor/Sprites/cell.png");
 
@@ -108,6 +67,13 @@ void ZS::Load()
 	defaultLayer.name = "Default";
 	defaultLayer.id = 0;
 	layerList.push_back(defaultLayer);
+
+	/*HMODULE dll = LoadLibraryA("Scripts.dll");
+	auto names = ScriptRegistry::GetInstance().GetRegisteredScriptNames();
+
+	auto* player = ScriptRegistry::GetInstance().CreateScript("Player");*/
+
+	DEBUG_INFO("ZS Engine | Version " + std::string(ZS_VERSION), PURPLE);
 }
 
 void ZS::PollEvent(sf::RenderWindow& _renderWindow, const sf::Event& _event)
@@ -211,6 +177,56 @@ void ZS::Cleanup()
 
 }
 
+void LoadImGuiStyle()
+{
+	DEBUG_INFO("Load ImGui", GREEN);
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowRounding = 5.0f;
+	style.FrameRounding = 3.0f;
+	style.GrabRounding = 3.0f;
+
+	ImVec4* colors = style.Colors;
+	colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_Button] = ImVec4(0.2f, 0.4f, 0.7f, 1.0f);
+	colors[ImGuiCol_ButtonHovered] = ImVec4(0.3f, 0.5f, 0.8f, 1.0f);
+	colors[ImGuiCol_ButtonActive] = ImVec4(0.1f, 0.3f, 0.6f, 1.0f);
+	colors[ImGuiCol_Header] = ImVec4(0.2f, 0.5f, 0.8f, 1.0f);
+	colors[ImGuiCol_HeaderHovered] = ImVec4(0.3f, 0.6f, 0.9f, 1.0f);
+	colors[ImGuiCol_HeaderActive] = ImVec4(0.1f, 0.4f, 0.7f, 1.0f);
+	colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	colors[ImGuiCol_Border] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+	colors[ImGuiCol_Separator] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_SeparatorActive] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+	colors[ImGuiCol_Tab] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_TabHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_TabActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_TabUnfocused] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_CheckMark] = ImVec4(0.2f, 0.5f, 0.8f, 1.0f);
+	colors[ImGuiCol_SliderGrab] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+	colors[ImGuiCol_FrameBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_FrameBgActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_PopupBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_MenuBarBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_ChildBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_ResizeGrip] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+	colors[ImGuiCol_TableHeaderBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_TableRowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+	colors[ImGuiCol_TableBorderStrong] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_TableBorderLight] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+}
+
 void HierarchyInterface()
 {
 	ImGui::Begin("Hierarchy");
@@ -238,7 +254,7 @@ void HierarchyInterface()
 			{
 				if (ImGui::MenuItem("Sprite"))
 				{
-
+					
 				}
 
 				if (ImGui::MenuItem("Circle"))
@@ -259,9 +275,19 @@ void HierarchyInterface()
 				if (ImGui::MenuItem("Rectangular"))
 				{
 					GameObject* gridGO = new GameObject;
-					gridGO->CreateRectangularTilemap(cellTexture, tilemapList);
+					gridGO->AddComponent<Grid>();
+					gridGO->name = "Grid";
+
+					GameObject* tilemapGO = new GameObject;
+					tilemapGO->AddComponent<Tilemap>();
+					tilemapGO->name = "Tilemap";
+
+					tilemapList.push_back(tilemapGO);
+					gridGO->child.push_back(tilemapGO);
 
 					gameObjectList.push_back(gridGO);
+
+					DEBUG_INFO("The rectangular tile map is created", CYAN);
 				}
 
 				ImGui::EndMenu();
@@ -305,9 +331,9 @@ void HierarchyInterface()
 
 	static int selected = -1;
 
-	for (ZS::GameObject* gameObject : ZS::gameObjectList)
+	for (GameObject* gameObject : gameObjectList)
 	{
-		DrawGameObjectNode(*gameObject, ZS::selectedGO);
+		DrawGameObjectNode(*gameObject, selectedGO);
 	}
 
 	ImGui::End();
@@ -364,13 +390,13 @@ void InspectorInterface()
 			ImGui::DragFloat("##ScaleY", &ZS::selectedGO->transform.scale.y, 0.01f, 0.01f, 10.0f);
 		}
 
-		for (Component* component : ZS::selectedGO->componentList)
+		for (Component* component : *selectedGO->GetComponentList())
 		{
 			ImGui::PushID(component);
 
 			if (ImGui::CollapsingHeader((component->data->Name() + "##header").c_str()))
 			{
-				if (auto* grid = selectedGO->GetComponent<Grid>())
+				if (auto* grid = dynamic_cast<Grid*>(component->data.get()))
 				{
 					/* --- Gride size --- */
 					ImGui::Text("Grid Size : ");
@@ -439,7 +465,7 @@ void InspectorInterface()
 					}
 				}
 
-				if (auto* tilemap = selectedGO->GetComponent<Tilemap>())
+				if (auto* tilemap = dynamic_cast<Tilemap*>(component->data.get()))
 				{
 					/* --- Sprite color --- */
 					float color[4] = { tilemap->color.r / 255.f, tilemap->color.g / 255.f, tilemap->color.b / 255.f, tilemap->color.a / 255.f };
@@ -507,32 +533,32 @@ void SceneInterface()
 	sf::Vector2f textureSize = static_cast<sf::Vector2f>(ZS::sceneRender->getSize());
 	sf::Vector2f screenSize = ZS::ImGuiUtility::ConvertImVec2toVector2f(avail);
 
-	sf::Vector2f mousePos = ZS::ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetMousePos());
+	sf::Vector2f mousePos = ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetMousePos());
 
 	if (screenSize.x > 1 && screenSize.y > 1)
 	{
 		if (textureSize != screenSize)
 		{
-			ZS::sceneRender->create(static_cast<unsigned int>(screenSize.x),
+			sceneRender->create(static_cast<unsigned int>(screenSize.x),
 				static_cast<unsigned int>(screenSize.y));
-			ZS::sceneView.setSize(screenSize);
+			sceneView.setSize(screenSize);
 			textureSize = screenSize;
 		}
 	}
 
-	ZS::sceneRender->setView(ZS::sceneView);
+	sceneRender->setView(sceneView);
 
-	ZS::sceneRender->clear(sf::Color::Transparent);
+	sceneRender->clear(sf::Color::Transparent);
 
-	for (ZS::GameObject*& gameObject : ZS::gameObjectList)
+	for (GameObject*& gameObject : gameObjectList)
 	{
-		DrawGameObjectScene(*gameObject, ZS::sceneRender);
+		DrawGameObjectScene(*gameObject, sceneRender);
 	}
 
-	ZS::sceneRender->display();
+	sceneRender->display();
 
 	ImGui::Image(
-		reinterpret_cast<void*>(static_cast<intptr_t>(ZS::sceneRender->getTexture().getNativeHandle())), avail,
+		reinterpret_cast<void*>(static_cast<intptr_t>(sceneRender->getTexture().getNativeHandle())), avail,
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 
@@ -541,23 +567,23 @@ void SceneInterface()
 		float scroolWheel = ImGui::GetIO().MouseWheel;
 		if (scroolWheel > 0)
 		{
-			ZS::sceneView.zoom(0.9f);
+			sceneView.zoom(0.9f);
 		}
 		else if (scroolWheel < 0)
 		{
-			ZS::sceneView.zoom(1.1f);
+			sceneView.zoom(1.1f);
 		}
 
 		if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle))
 		{
 			ImVec2 delta = ImGui::GetIO().MouseDelta;
-			ZS::sceneView.move(-delta.x, -delta.y);
+			sceneView.move(-delta.x, -delta.y);
 		}
 
-		sf::Vector2f imagePos = ZS::ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetItemRectMin());
+		sf::Vector2f imagePos = ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetItemRectMin());
 
 		sf::Vector2f localPos = mousePos - imagePos;
-		sf::Vector2f worldPos = ZS::sceneRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
+		sf::Vector2f worldPos = sceneRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
 
 		/* --- Paint tiles --- */
 		if (selectedTileMapGO)
@@ -565,11 +591,11 @@ void SceneInterface()
 			auto* tilemap = selectedTileMapGO->GetComponent<Tilemap>();
 			if (tilemap && selectedCell)
 			{
-				tilemap->PaintTiles(ZS::selectedCell, ZS::tileset.texture);
+				tilemap->PaintTiles(selectedCell, tileset.texture);
 			}
 		}
 
-		for (auto& gameObject : ZS::gameObjectList)
+		for (auto& gameObject : gameObjectList)
 		{
 			UpdateGrid(*gameObject, worldPos);
 		}
@@ -601,7 +627,7 @@ void TilesetInterface()
 
 	std::string tilemapName;
 
-	selectedTileMapGO ? tilemapName = ZS::selectedTileMapGO->name : tilemapName = "None";
+	selectedTileMapGO ? tilemapName = selectedTileMapGO->name : tilemapName = "None";
 
 	ImGui::Text("Tile Map active : ");
 	ImGui::SameLine();
@@ -620,12 +646,12 @@ void TilesetInterface()
 
 		for (GameObject* tilemapList : tilemapList)
 		{
-			const bool isSelected = (tilemapList == ZS::selectedTileMapGO);
+			const bool isSelected = (tilemapList == selectedTileMapGO);
 			if (filter.PassFilter(tilemapList->name.c_str()))
 			{
 				if (ImGui::Selectable(tilemapList->name.c_str(), isSelected))
 				{
-					ZS::selectedTileMapGO = tilemapList;
+					selectedTileMapGO = tilemapList;
 				}
 			}
 		}
@@ -693,18 +719,15 @@ void TilesetInterface()
 
 void UpdateGrid(ZS::GameObject& _gO, sf::Vector2f _worldPos)
 {
-	for (auto component : _gO.componentList)
+	if (auto* grid = _gO.GetComponent<ZS::Grid>())
 	{
-		if (auto* grid = _gO.GetComponent<ZS::Grid>())
-		{
-			grid->CellOverriding(_worldPos);
+		grid->CellOverriding(_worldPos);
 
-		}
+	}
 
-		if (auto* tilemap = _gO.GetComponent<ZS::Tilemap>())
-		{
-			tilemap->grid.CellOverriding(_worldPos);
-		}
+	if (auto* tilemap = _gO.GetComponent<ZS::Tilemap>())
+	{
+		tilemap->grid.CellOverriding(_worldPos);
 	}
 
 	if (!_gO.child.empty())
@@ -720,7 +743,6 @@ void DrawFileExplorer()
 {
 	ImGui::Begin("Folder");
 
-	// Bouton pour revenir en arrière
 	if (ImGui::Button(".."))
 	{
 		ZS::currentPath = std::filesystem::path(ZS::currentPath).parent_path().string();
@@ -728,7 +750,6 @@ void DrawFileExplorer()
 
 	ImGui::Separator();
 
-	// Liste des fichiers/dossiers
 	for (const auto& entry : std::filesystem::directory_iterator(ZS::currentPath))
 	{
 		std::string name = entry.path().filename().string();
@@ -739,14 +760,14 @@ void DrawFileExplorer()
 			ImGui::Text("[DIR] %s", name.c_str());
 			if (ImGui::IsItemClicked())
 			{
-				ZS::currentPath = entry.path().string();
+				currentPath = entry.path().string();
 			}
 		}
 		else
 		{
-			if (ImGui::Selectable(name.c_str(), ZS::selectedFile == name))
+			if (ImGui::Selectable(name.c_str(), selectedFile == name))
 			{
-				ZS::selectedFile = name;
+				selectedFile = name;
 			}
 		}
 	}
@@ -754,7 +775,7 @@ void DrawFileExplorer()
 	ImGui::End();
 }
 
-void DrawGameObjectNode(ZS::GameObject& _gO, ZS::GameObject*& _selectedGO)
+void DrawGameObjectNode(GameObject& _gO, GameObject*& _selectedGO)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 
@@ -779,7 +800,7 @@ void DrawGameObjectNode(ZS::GameObject& _gO, ZS::GameObject*& _selectedGO)
 
 	if (open && hasChildren)
 	{
-		for (ZS::GameObject*& child : _gO.child)
+		for (GameObject*& child : _gO.child)
 		{
 			DrawGameObjectNode(*child, _selectedGO);
 		}
@@ -787,7 +808,7 @@ void DrawGameObjectNode(ZS::GameObject& _gO, ZS::GameObject*& _selectedGO)
 	}
 }
 
-void DrawGameObjectScene(ZS::GameObject& _gO, std::unique_ptr<sf::RenderTexture>& _render)
+void DrawGameObjectScene(GameObject& _gO, std::unique_ptr<sf::RenderTexture>& _render)
 {
 	for (auto child : _gO.child)
 	{

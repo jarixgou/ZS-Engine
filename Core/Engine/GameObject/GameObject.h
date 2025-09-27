@@ -27,13 +27,60 @@ namespace ZS
 
 			Transform transform;
 
-			std::vector<Component*> componentList;
+			const std::vector<Component*>* GetComponentList(void) const;
 
-			void CreateRectangularTilemap(sf::Texture& _cellTexture, std::vector<GameObject*>& _tilemapList);
-			
-			template<typename T>
-			T* GetComponent(void);
+			template<class T>
+			void AddComponent(void)
+			{
+				if (std::is_base_of_v<T, IComponentData>)
+				{
+					DEBUG_INFO("Component must inherit from IComponentData", RED);
+					return;
+				}
+
+				for (const auto component : this->componentList)
+				{
+					if (std::is_same_v<Tilemap, T>)
+					{
+						DEBUG_INFO("You can't put the tilemap component because you already have one", RED);
+						return;
+					}
+
+					if (std::is_same_v<Grid, T>)
+					{
+						DEBUG_INFO("You can't put the grid component because you already have one", RED);
+						return;
+					}
+				}
+
+				Component* component = new Component;
+				std::unique_ptr<T> data = std::make_unique<T>();
+
+				component->data = std::move(data);
+				this->componentList.push_back(component);
+			}
+
+			template<class T>
+			T* GetComponent(void)
+			{
+				if (std::is_base_of_v<T, IComponentData>)
+				{
+					DEBUG_INFO("Component must inherit from IComponentData", RED);
+					return nullptr;
+				}
+
+				for (auto component : this->componentList)
+				{
+					if (auto* data = dynamic_cast<T*>(component->data.get()))
+					{
+						return data;
+					}
+				}
+				return nullptr;
+			}
 
 			void ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf::Texture& _tilesetTexture);
+		private:
+			std::vector<Component*> componentList;
 		}GameObject;
 }

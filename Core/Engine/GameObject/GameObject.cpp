@@ -3,52 +3,12 @@
 std::vector<std::vector<size_t>> SaveCellID(const ZS::Grid& _grid);
 void RestoreGridID(ZS::Grid& _grid, const std::vector<std::vector<size_t>>& _savedGridID, sf::Texture& _tilesetTexture);
 
-void ZS::GameObject::CreateRectangularTilemap(sf::Texture& _cellTexture, std::vector<GameObject*>& _tilemapList)
+const std::vector<ZS::Component*>* ZS::GameObject::GetComponentList() const
 {
-	this->parent = nullptr;
-	this->name = "Grid";
-	this->tag = nullptr;
-	this->layer = nullptr;
-	this->transform = { };
-
-	Component* gridComponent = new Component;
-	std::unique_ptr<Grid> gridData = std::make_unique<Grid>();
-	gridData->CreateGrid(_cellTexture, false);
-	gridComponent->data = std::move(gridData);
-	this->componentList.push_back(gridComponent);
-
-	GameObject* tilemapGO = new GameObject;
-	tilemapGO->parent = this;
-	tilemapGO->name = "Tilemap";
-	tilemapGO->tag = nullptr;
-	tilemapGO->layer = nullptr;
-	tilemapGO->transform = { };
-
-	Component* tilemapComponent = new Component;
-	std::unique_ptr<Tilemap> tilemapData = std::make_unique<Tilemap>();
-	tilemapData->grid.CreateGrid(_cellTexture, false);
-	tilemapComponent->data = std::move(tilemapData);
-	tilemapGO->componentList.push_back(tilemapComponent);
-
-	_tilemapList.push_back(tilemapGO);
-
-	this->child.push_back(tilemapGO);
+	return &this->componentList;
 }
 
-template <typename T>
-T* ZS::GameObject::GetComponent()
-{
-	for (auto component : this->componentList)
-	{
-		if (auto* data = dynamic_cast<T*>(component->data.get()))
-		{
-			return data;
-		}
-	}
-	return nullptr;
-}
-
-void ZS::GameObject::ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf::Texture& _tilesetTexture) 
+void ZS::GameObject::ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf::Texture& _tilesetTexture)
 {
 	if (auto* grid = this->GetComponent<Grid>())
 	{
@@ -59,7 +19,7 @@ void ZS::GameObject::ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf
 		grid->DestroyGrid();
 		grid->CreateGrid(_cellTexture, false);
 	}
-	
+
 	if (auto* tilemap = this->GetComponent<Tilemap>())
 	{
 		tilemap->grid.gridSize = _grid.gridSize;
@@ -71,7 +31,7 @@ void ZS::GameObject::ResizeGrid(const Grid& _grid, sf::Texture& _cellTexture, sf
 		tilemap->grid.CreateGrid(_cellTexture, false);
 		RestoreGridID(tilemap->grid, savedGridID, _tilesetTexture);
 	}
-	
+
 	for (auto child : this->child)
 	{
 		child->ResizeGrid(_grid, _cellTexture, _tilesetTexture);

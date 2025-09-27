@@ -1,5 +1,4 @@
 #pragma once
-#include "../../GameObject.h"
 
 typedef class MonoBehaviour
 {
@@ -11,5 +10,4 @@ public:
 	virtual void Cleanup();
 
 	bool enable = true;
-	ZS::GameObject* gameObject = nullptr;
 }MonoBehaviour;

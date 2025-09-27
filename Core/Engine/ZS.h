@@ -4,6 +4,7 @@
 #include <functional>
 #include <filesystem>
 
+#include "API.h"
 #include "../Common.h"
 #include "Layer/Layer.h"
 #include "GameObject/GameObject.h"

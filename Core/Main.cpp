@@ -14,11 +14,14 @@ int main()
 
 	ImGui::SFML::Init(renderWindow);
 
+	DEBUG_INFO("SFML window created !", GREEN);
+	DEBUG_INFO("Screen : " + std::to_string(SCREEN_WIDTH) + "x" + std::to_string(SCREEN_HEIGHT), PURPLE);
+
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	Init();
-
+	
 	sf::Clock deltaTime;
 	while (renderWindow.isOpen())
 	{

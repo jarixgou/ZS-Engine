@@ -17,6 +17,8 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui-SFML.h"
 
+#include "DebugInfo.h"
+
 #define GAME_SCALE 3
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
