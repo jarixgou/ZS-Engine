@@ -610,17 +610,17 @@ void TilesetInterface()
 
 	ImVec2 avail = ImGui::GetContentRegionAvail();
 	sf::Vector2f textureSize = static_cast<sf::Vector2f>(ZS::tilesetRender->getSize());
-	sf::Vector2f screenSize = ZS::ImGuiUtility::ConvertImVec2toVector2f(avail);
+	sf::Vector2f screenSize = ImGuiUtility::ConvertImVec2toVector2f(avail);
 
-	sf::Vector2f mousePos = ZS::ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetMousePos());
+	sf::Vector2f mousePos = ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetMousePos());
 
 	if (screenSize.x > 1 && screenSize.y > 1)
 	{
 		if (textureSize != screenSize)
 		{
-			ZS::tilesetRender->create(static_cast<unsigned int>(screenSize.x),
+			tilesetRender->create(static_cast<unsigned int>(screenSize.x),
 				static_cast<unsigned int>(screenSize.y));
-			ZS::tilesetView.setSize(screenSize);
+			tilesetView.setSize(screenSize);
 			textureSize = screenSize;
 		}
 	}
@@ -661,16 +661,16 @@ void TilesetInterface()
 
 	if (ImGui::Button("Edit"))
 	{
-		ZS::openPaletteEditor = !ZS::openPaletteEditor;
+		openPaletteEditor = !openPaletteEditor;
 	}
 
 	ImGui::Separator();
 
-	ZS::tilesetRender->setView(ZS::tilesetView);
+	tilesetRender->setView(tilesetView);
 
-	ZS::tilesetRender->clear(sf::Color::Transparent);
+	tilesetRender->clear(sf::Color::Transparent);
 
-	ZS::tilesetRender->draw(ZS::tileset.sprite);
+	tilesetRender->draw(tileset.sprite);
 
 	for (auto& cellList : ZS::tileset.grid.cellList)
 	{
@@ -683,35 +683,35 @@ void TilesetInterface()
 	ZS::tilesetRender->display();
 
 	ImGui::Image(
-		reinterpret_cast<void*>(static_cast<intptr_t>(ZS::tilesetRender->getTexture().getNativeHandle())), avail,
+		reinterpret_cast<void*>(static_cast<intptr_t>(tilesetRender->getTexture().getNativeHandle())), avail,
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 
 	if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
 	{
-		sf::Vector2f imagePos = ZS::ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetItemRectMin());
+		sf::Vector2f imagePos = ImGuiUtility::ConvertImVec2toVector2f(ImGui::GetItemRectMin());
 
 		float scroolWheel = ImGui::GetIO().MouseWheel;
 		if (scroolWheel > 0)
 		{
-			ZS::tilesetView.zoom(0.9f);
+			tilesetView.zoom(0.9f);
 		}
 		else if (scroolWheel < 0)
 		{
-			ZS::tilesetView.zoom(1.1f);
+			tilesetView.zoom(1.1f);
 		}
 
 		if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle))
 		{
 			ImVec2 delta = ImGui::GetIO().MouseDelta;
-			ZS::tilesetView.move(-delta.x, -delta.y);
+			tilesetView.move(-delta.x, -delta.y);
 		}
 
 		sf::Vector2f localPos = mousePos - imagePos;
-		sf::Vector2f worldPos = ZS::tilesetRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
+		sf::Vector2f worldPos = tilesetRender->mapPixelToCoords(static_cast<sf::Vector2i>(localPos));
 
-		ZS::tileset.grid.CellOverriding(worldPos);
-		ZS::tileset.grid.SelectCell(&ZS::selectedCell);
+		tileset.grid.CellOverriding(worldPos);
+		tileset.grid.SelectCell(&ZS::selectedCell);
 	}
 
 	ImGui::End();
